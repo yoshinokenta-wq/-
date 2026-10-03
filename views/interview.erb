@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>面接練習 - ライブ音声対話モード</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="interview-container">
+<header class="interview-header">
+<div class="header-info">
+<span class="mode-title"><%= @mode == 'real'? '本番モード': '練習モード' %></span>
+<% if @difficulty %>
+<span class="difficulty-title">難易度:<%= @difficulty.to_s.upcase %></span>
+<% end %>
+</div>
+</header>
+
+<main class="interview-main">
+<div class="speech-bubble">
+<div class="bubble-header">面接官 (Gemini Live)</div>
+<div class="bubble-content" id="interviewer-text">
+<%= @current_eval || "準備ができたら「音声対話スタート」を押してください。" %>
+</div>
+</div>
+
+<div class="interviewer-avatar">
+<img src="https://api.dicebear.com/7.x/bottts/svg?seed=interviewer" alt="面接官">
+</div>
+</main>
+
+<footer class="interview-footer">
+<div class="input-section" style="justify-content: center; margin-top: 10px;">
+<button type="button" class="send-btn" id="mic-btn" style="padding: 16px 32px; font-size: 1.1rem; background-color: #4f46e5;">
+音声対話スタート
+</button>
+<a href="/modes" class="btn-secondary" style="display: inline-block; padding: 16px 24px; text-decoration: none; border-radius: 10px; background: #e5e7eb; color: #333; margin-left: 12px; font-weight: bold;">モード選択に戻る</a>
+</div>
+</footer>
+</div>
+
+<script>
+  window.GEMINI_API_KEY = "<%= ENV['GEMINI_API_KEY'] %>";
+</script>
+<script src="/script.js"></script>
+</body>
+</html>

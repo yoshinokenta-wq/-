@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>キャラクター口パクアニメーション（6種類ランダム）</title>
+  <style>
+    /* キャラクター表示領域 */
+    .character-container {
+      position: relative;
+      width: 400px;
+      height: 400px;
+      margin: 0 auto;
+      background-color: #000;
+      cursor: pointer;
+    }
+
+    /* キャンバスサイズが同じ画像をすべてピタリと重ね合わせる */
+    .character-container img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  </style>
+</head>
+<body>
+
+<div class="character-container" onclick="toggleTalk()">
+  <!-- 体・顔のベース画像[cite: 9] -->
+  <img src="body.png" alt="体ベース">
+  
+  <!-- 口パーツ（初期状態は口閉じ） -->
+  <img id="mouth" src="mouth_close.png" alt="口">
+</div>
+
+<script>
+  const mouth = document.getElementById('mouth');
+
+  // 口閉じ ＋ あ・い・う・え・お の計6種類の画像パス
+  const mouthFrames = [
+    'mouth_a.png',     // あ[cite: 4]
+    'mouth_i.png',     // い[cite: 5]
+    'mouth_u.png',     // う[cite: 6]
+    'mouth_e.png',     // え[cite: 7]
+    'mouth_o.png',     // お[cite: 8]
+    'mouth_close.png'  // 口閉じ[cite: 10]
+  ];
+
+  let isTalking = false;
+  let timerId = null;
+
+  function toggleTalk() {
+    isTalking = !isTalking;
+
+    if (isTalking) {
+      // 120ミリ秒ごとに6種類の中からランダムで口を選択
+      timerId = setInterval(() => {
+        const randomIndex = Math.floor(Math.random() * mouthFrames.length);
+        mouth.src = mouthFrames[randomIndex];
+      }, 120);
+    } else {
+      // 停止時は「口閉じ」に戻す[cite: 10]
+      clearInterval(timerId);
+      mouth.src = 'mouth_close.png';
+    }
+  }
+</script>
+
+</body>
+</html>

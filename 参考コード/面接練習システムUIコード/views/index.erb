@@ -1,0 +1,131 @@
+<link rel="stylesheet" href="/style.css">
+
+<div class="main-container">
+  <div class="title-ui">
+    <img src="/images/title.png" alt="タイトル" class="title-img">
+  </div>
+
+  <div class="menu-buttons">
+    <a href="/modes" class="btn">1. モード選択</a>
+    <!-- 言語設定ボタン -->
+    <button type="button" class="btn" onclick="openLangModal()">2. 言語設定</button>
+    <!-- 基本設定ボタン -->
+    <button type="button" class="btn" onclick="openSettings()">⚙️ 基本設定</button>
+  </div>
+</div>
+
+<!-- ================= 言語設定モーダル (hiddenを追加) ================= -->
+<div id="lang-modal" class="modal-overlay hidden">
+  <div class="modal-window">
+    <div class="modal-header">
+      <span class="modal-title">言語設定</span>
+      <button type="button" class="close-btn" onclick="closeLangModal()">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <p class="instruction-text">あなたの母国語で「こんにちは」と入力してください。</p>
+
+      <form action="/settings" method="POST" id="lang-form">
+        <div class="input-wrapper">
+          <input type="text" name="user_input" id="user_input" placeholder="入力またはマイクを押して発話..." required autocomplete="off">
+          <button type="button" id="mic-btn" class="mic-btn" onclick="startSpeechRecognition()" title="音声入力">🎙️</button>
+        </div>
+        <button type="submit" class="submit-btn">設定を反映</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 基本設定モーダル (hiddenを追加) ================= -->
+<div id="settings-modal" class="modal-overlay hidden">
+  <div class="modal-window">
+    <div class="modal-header">
+      <span class="modal-title">設定</span>
+      <button type="button" class="close-btn" onclick="closeSettings()">&times;</button>
+    </div>
+
+    <div class="settings-body">
+      <!-- BGM 設定 -->
+      <div class="setting-item">
+        <label class="setting-label">BGM 音量</label>
+        <input type="range" id="bgm-volume" min="0" max="100" value="50" class="setting-slider">
+      </div>
+
+      <!-- マイク感度 設定 -->
+      <div class="setting-item">
+        <label class="setting-label">マイク感度</label>
+        <input type="range" id="mic-sensitivity" min="0" max="100" value="70" class="setting-slider">
+      </div>
+
+      <!-- 文字の大きさ 設定 -->
+      <div class="setting-item">
+        <label class="setting-label">文字の大きさ</label>
+        <div class="font-size-options">
+          <label><input type="radio" name="font-size" value="small"> 小</label>
+          <label><input type="radio" name="font-size" value="medium" checked> 中</label>
+          <label><input type="radio" name="font-size" value="large"> 大</label>
+        </div>
+      </div>
+
+      <button type="button" class="submit-btn" onclick="saveSettings()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 言語設定モーダル開閉
+  function openLangModal() {
+    document.getElementById('lang-modal').classList.remove('hidden');
+  }
+  function closeLangModal() {
+    document.getElementById('lang-modal').classList.add('hidden');
+  }
+
+  // 基本設定モーダル開閉
+  function openSettings() {
+    document.getElementById('settings-modal').classList.remove('hidden');
+  }
+  function closeSettings() {
+    document.getElementById('settings-modal').classList.add('hidden');
+  }
+
+  function saveSettings() {
+    alert("設定を保存しました！");
+    closeSettings();
+  }
+
+  // Web Speech API による音声入力機能
+  function startSpeechRecognition() {
+    const micBtn = document.getElementById('mic-btn');
+    const inputField = document.getElementById('user_input');
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("お使いのブラウザは音声入力に対応していません。テキストで入力してください。");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'ja-JP';
+    recognition.interimResults = false;
+
+    micBtn.classList.add('recording');
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      inputField.value = transcript;
+      micBtn.classList.remove('recording');
+    };
+
+    recognition.onerror = () => {
+      micBtn.classList.remove('recording');
+      alert("音声認識に失敗しました。もう一度試すかテキスト入力してください。");
+    };
+
+    recognition.onend = () => {
+      micBtn.classList.remove('recording');
+    };
+
+    recognition.start();
+  }
+</script>

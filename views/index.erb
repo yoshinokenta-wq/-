@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>CULTURE - トップ</title>
+<link rel="stylesheet" href="/style.css">
+<style>
+  /* モーダル表示用のスタイル */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px); /* 背景をぼかす */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  .modal-box {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+</style>
+</head>
+<body>
+<div class="main-container">
+<div class="title-ui">
+<img src="/images/title.png" alt="CULTURE" class="title-img">
+</div>
+<div class="menu-buttons">
+<a href="/modes" class="btn">1. モード選択</a>
+<a href="/language" class="btn">2. 言語設定</a>
+<a href="/settings" class="btn">基本設定</a>
+</div>
+</div>
+
+<%# 言語設定または基本設定が開かれたとき %>
+<% if (defined?(@show_settings) && @show_settings) || (defined?(@show_language) && @show_language) || (defined?(@show_basic_settings) && @show_basic_settings) %>
+<div class="modal-overlay">
+<div class="modal-box">
+  
+  <%# --- 言語設定の場合 --- %>
+  <% if defined?(@show_language) && @show_language %>
+    <h2>言語設定</h2>
+    <form action="/settings" method="POST" class="answer-form">
+      <label for="language"><strong>使用する言語を選択してください: </strong></label>
+      <select name="lang" id="language" style="width: 100%; padding: 12px; margin: 15px 0; border-radius: 8px; font-size: 1rem;">
+        <option value="ja" <%= session[:lang] == 'ja' ? 'selected' : '' %>>日本語 (Japanese)</option>
+        <option value="en" <%= session[:lang] == 'en' ? 'selected' : '' %>>英語 (English)</option>
+      </select>
+      <button type="submit" class="btn" style="width: 100%; margin-bottom: 10px;">設定を保存して戻る</button>
+    </form>
+
+  <%# --- 基本設定の場合 --- %>
+  <% elsif defined?(@show_basic_settings) && @show_basic_settings %>
+    <h2>基本設定</h2>
+    <form action="/settings" method="POST" class="settings-body">
+      <div class="setting-item">
+        <label class="setting-label" for="volume">音量調節</label>
+        <input type="range" id="volume" name="volume" min="0" max="100" value="50" class="setting-slider">
+      </div>
+      
+      <div class="setting-item">
+        <label class="setting-label">文字の大きさ</label>
+        <div class="font-size-options">
+          <label><input type="radio" name="font_size" value="small"> 小</label>
+          <label><input type="radio" name="font_size" value="medium" checked> 中</label>
+          <label><input type="radio" name="font_size" value="large"> 大</label>
+        </div>
+      </div>
+
+      <button type="submit" class="btn" style="width: 100%; margin-top: 10px;">保存して戻る</button>
+    </form>
+  <% end %>
+
+  <a href="/" class="back-link" style="display: block; text-align: center; margin-top: 15px;">← 閉じる</a>
+</div>
+</div>
+<% end %>
+
+</body>
+</html>

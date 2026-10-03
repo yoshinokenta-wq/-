@@ -1,0 +1,102 @@
+<link rel="stylesheet" href="/style.css">
+
+<div class="interview-container">
+  <!-- 1. 左上：大きめのモード / 難易度表示（色枠なし） -->
+  <header class="interview-header">
+    <div class="header-info">
+      <span class="mode-title">本番モード</span>
+      <span class="difficulty-title">難易度: <%= @difficulty.to_s.upcase %></span>
+    </div>
+  </header>
+
+  <!-- 2. 中央エリア：吹き出し & 中央配置の面接官 -->
+  <main class="interview-main">
+    <div class="speech-bubble">
+      <div class="bubble-header">面接官</div>
+      <div class="bubble-content" id="interviewer-text">
+        面接を開始します。本日、弊社を志望された理由を具体的にお聞かせください。
+      </div>
+    </div>
+
+    <div class="interviewer-avatar">
+      <img src="https://api.dicebear.com/7.x/bottts/svg?seed=interviewer" alt="面接官">
+    </div>
+  </main>
+
+  <!-- 3. 下部エリア：進捗度 & 入力・マイクフォーム -->
+  <footer class="interview-footer">
+    <div class="progress-section">
+      <div class="progress-boxes">
+        <div class="step-box active">1</div>
+        <div class="step-box">2</div>
+        <div class="step-box">3</div>
+        <div class="step-box">4</div>
+        <div class="step-box">5</div>
+      </div>
+      <span class="progress-text">進捗度（全5問）</span>
+    </div>
+
+    <div class="input-section">
+      <!-- 左側：進捗度の%バー -->
+      <div class="progress-bar-container">
+        <div class="progress-bar-label">
+          <span>進捗度</span>
+          <span id="progress-percent">20%</span>
+        </div>
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="progress-bar-fill" style="width: 20%;"></div>
+        </div>
+      </div>
+
+      <!-- 右側：テキスト入力と各種ボタン -->
+      <div class="input-controls">
+        <textarea id="user-input" placeholder="回答を入力してください..."></textarea>
+        <button class="icon-btn" id="mic-btn">🎤</button>
+        <button class="send-btn" id="send-btn">送信</button>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- 評価結果モーダル（初期状態は非表示） -->
+<div class="modal-overlay hidden" id="eval-modal">
+  <div class="eval-window">
+    <!-- 右上のフクロウ画像エリア -->
+    <div class="owl-icon">
+      <img src="/images/owl.png" alt="フクロウアドバイザー">
+    </div>
+
+    <!-- ウィンドウタイトル -->
+    <h2>面接評価結果</h2>
+
+    <!-- 中央の評価＆アドバイスコンテンツ -->
+    <div class="eval-content">
+      <!-- 左側：評価吹き出し -->
+      <div class="eval-bubble score-bubble">
+        <div class="bubble-title">総合評価</div>
+        <div class="bubble-body" id="eval-score">
+          <!-- ここにGeminiからの評価が入ります -->
+          評価を読み込み中...
+        </div>
+      </div>
+
+      <!-- 右側：アドバイス吹き出し -->
+      <div class="eval-bubble advice-bubble">
+        <div class="bubble-title">アドバイス</div>
+        <div class="bubble-body" id="eval-advice">
+          <!-- ここにGeminiからのアドバイスが入ります -->
+          アドバイスを読み込み中...
+        </div>
+      </div>
+    </div>
+
+    <!-- 下部ボタンエリア -->
+    <div class="eval-footer">
+      <a href="/" class="btn-secondary">タイトルに戻る</a>
+      <button class="btn-primary" onclick="window.location.reload()">もう一度</button>
+    </div>
+  </div>
+</div>
+
+<!-- ★超重要：スクリプトは必ず一番最後に置きます！ -->
+<script src="/script.js"></script>

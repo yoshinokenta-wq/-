@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>難易度選択</title>
+<style>
+body { background-color: #f8f9fa; font-family: sans-serif; display: flex; flex-direction:
+column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+.card-box { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px
+12px rgba(0,0,0,0.05); text-align: center; width: 320px; }
+.sub-text { color: #6c757d; font-size: 12px; margin-bottom: 24px; }
+.btn-group { display: flex; flex-direction: column; gap: 12px; }
+.btn-diff { background: white; border: 1px solid #ccc; padding: 12px; border-radius: 8px;
+text-decoration: none; color: #333; font-weight: bold; }
+.btn-diff:hover { border-color: #007bff; background-color: #f0f7ff; }
+.back-link { display: block; margin-top: 30px; color: #6c757d; text-decoration: none;
+font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="card-box">
+<h3>難易度選択</h3>
+<div class="sub-text">優しく履修(またはフクロウ) </div>
+<div class="btn-group">
+<a href="/interview?mode=<%= @mode %>&difficulty=easy" class="btn-diff">Easy</a>
+<a href="/interview?mode=<%= @mode %>&difficulty=normal" class="btn-diff">Normal</a>
+<a href="/interview?mode=<%= @mode %>&difficulty=hard" class="btn-diff">Hard</a>
+</div>
+</div>
+<a href="/modes" class="back-link">← モード選択に戻る</a>
+</body>
+</html>

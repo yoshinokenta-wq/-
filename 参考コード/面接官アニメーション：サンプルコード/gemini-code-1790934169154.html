@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>キャラクター口パクアニメーション</title>
+  <style>
+    /* キャラクターを表示するコンテナ */
+    .character-container {
+      position: relative;
+      width: 400px;  /* 画面上に表示したい大きさ */
+      height: 400px;
+      margin: 0 auto;
+      background-color: #ffb3b300; /* 背景が黒の場合 */
+      cursor: pointer;
+    }
+
+    /* キャンバスサイズが同じ画像はすべてピッタリ重ねる */
+    .character-container img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  </style>
+</head>
+<body>
+
+<div class="character-container" onclick="toggleTalk()">
+  <!-- ベースの体・顔画像 -->
+  <img src="ふくろうさん.png" alt="体ベース">
+  
+  <!-- 口のパーツ画像（重ねて表示）[cite: 1, 2] -->
+  <img id="mouth" src="mouth1.png" alt="口">
+</div>
+
+<script>
+  const mouth = document.getElementById('mouth');
+  
+  // キャンバスサイズが共通の口パーツ画像のパスリスト[cite: 1, 2]
+  const mouthFrames = [
+    'mouth1.png', // 開いている口
+    'mouth2.png'  // 閉じている/別の形の口
+  ];
+
+  let isTalking = false;
+  let timerId = null;
+
+  function toggleTalk() {
+    isTalking = !isTalking;
+
+    if (isTalking) {
+      let frameIndex = 0;
+      // 150ミリ秒ごとに口の画像を交互に切り替え[cite: 1, 2]
+      timerId = setInterval(() => {
+        frameIndex = (frameIndex + 1) % mouthFrames.length;
+        mouth.src = mouthFrames[frameIndex];
+      }, 250);
+    } else {
+      // 停止したらデフォルト（閉じ口など）に戻す[cite: 2]
+      clearInterval(timerId);
+      mouth.src = 'mouth2.png';
+    }
+  }
+</script>
+
+</body>
+</html>
