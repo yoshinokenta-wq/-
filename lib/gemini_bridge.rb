@@ -10,12 +10,26 @@ class GeminiBridge
   GEMINI_PATH = '/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent'
   DEFAULT_MODEL = 'models/gemini-3.8-live'
   DEFAULT_VOICE = 'Puck'
+
+  TOTAL_QUESTIONS = 5
+
+  MODE_LABELS = {
+    'practice' => '練習モード',
+    'real' => '本番モード'
+  }.freeze
   
-  def self.load_system_prompt
-    ['prompts/evaluation.txt', 'prompts/evaluation.tet'].each do |path|
-      return File.read(path, encoding: 'utf-8').strip if File.exist?(path)
-    end
-    'あなたは企業の採用面接官です。応募者に対する模擬面接を行ってください。実際の面接らしく、まずは自己紹介や志望動機などの質問を1つずつ投げかけてください。会話のテンポを最重要視し、1〜2文程度の短く簡潔で自然な日本語で話してください。'
+  def self.load_prompt(file_name)
+    path = File.join(__dir__, '..', 'prompts', file_name)
+    File.exist?(path) ? File.read(path, encoding: 'utf-8').strip : nil
+  rescue StandardError
+    nil
+  end
+
+  # 面接官のベースプロンプト
+  def self.default_system_prompt
+    load_prompt('interviewer.txt') ||
+      'あなたは企業の採用面接官です。応募者に対する模擬面接を行ってください。' \
+      '実際の面接らしく、まずは自己紹介や志望動機などの質問を1つずつ投げかけてください。'
   end
 
   attr_reader :browser_ws, :gemini_client, :is_open, :setup_completed
@@ -25,7 +39,9 @@ class GeminiBridge
     @api_key = options[:api_key] || ENV['GEMINI_API_KEY']
     @model = format_model_name(options[:model] || ENV['GEMINI_MODEL'] || DEFAULT_MODEL)
     @voice = options[:voice] || ENV['GEMINI_VOICE'] || DEFAULT_VOICE
-    @system_prompt = options[:system_prompt] || ENV['GEMINI_SYSTEM_PROMPT'] || self.class.load_system_prompt
+    @mode = (options[:mode] || ENV['GEMINI_MODE'] || 'practice').to_s
+    @difficulty = (options[:difficulty] || ENV['GEMINI_DIFFICULTY'] || 'normal').to_s.downcase
+    @system_prompt = options[:system_prompt] || build_system_prompt
     @logger = options[:logger] || Logger.new($stdout)
     @gemini_client = nil
     @is_open = false
@@ -33,6 +49,56 @@ class GeminiBridge
     @activity_started = false
     @audio_chunks_sent = 0
     @mock_mode = options[:mock_mode] || false
+  end
+
+  def mode
+    @mode
+  end
+
+  def difficulty
+    @difficulty
+  end
+
+  # 難易度ごとの出題指引
+  def difficulty_rule
+    case @difficulty
+    when 'easy'
+      'やさしい入門レベル。1〜2文で答えられる具体的な話題（趣味、部活など）に絞った質問にする。'
+    when 'hard'
+      '難しいレベル。"Why"を掘り下げる抽象的な質問や、考えを聞かせる質問を中心にする。'
+    else
+      '一般的な高校入試レベル。志望理由や中学での経験を絡めた質問にする。'
+    end
+  end
+
+  # モードごとの面接の進め方
+  def mode_instruction
+    if @mode == 'real'
+      "実際の入試と同じように、#{TOTAL_QUESTIONS}問を順番に出題してください。" \
+        '途中のコメント・評価・助言は一切しないでください。' \
+        '最後に「以上、本日の面接は終わりました。ありがとうございました。」と伝えてください。'
+    else
+      '1問ごとに、相手の回答を短い言葉で受け止めたうえで、次の質問に進んでください。' \
+        '相手が詰まっても答えを急かさないでください。'
+    end
+  end
+
+  # ベースプロンプトにモードと難易度の条件を付与する
+  def build_system_prompt
+    base = self.class.default_system_prompt
+    mode_label = MODE_LABELS.fetch(@mode, '練習モード')
+
+    conditions = [
+      '【今回の面接条件】',
+      "モード: #{mode_label}",
+      "難易度: #{@difficulty.upcase}",
+      "総質問数: #{TOTAL_QUESTIONS}問",
+      '',
+      "【難易度の指針】#{difficulty_rule}",
+      "【#{mode_label}の進め方】#{mode_instruction}"
+    ]
+
+    "#{base}\n\n#{conditions.join("\n")}"
   end
 
   def start
@@ -71,19 +137,22 @@ class GeminiBridge
 
     @audio_chunks_sent = (@audio_chunks_sent || 0) + 1
 
+    unless @activity_started
+      @activity_started = true
+      @logger.info('[GeminiBridge] Sending activityStart for new user turn')
+      safe_send({ realtimeInput: { activityStart: {} } }.to_json)
+    end
+
     if @audio_chunks_sent == 1 || (@audio_chunks_sent % 40).zero?
       @logger.info("[GeminiBridge] Streaming audio to Gemini... (chunk ##{@audio_chunks_sent}, mime: #{mime_type}, bytes: #{base64_audio.length})")
     end
 
-    # ▼ 【修正点】Gemini API仕様に合わせて mediaChunks 配列に変更
     payload = {
       realtimeInput: {
-        mediaChunks: [
-          {
-            mimeType: mime_type,
-            data: base64_audio
-          }
-        ]
+        audio: {
+          mimeType: mime_type,
+          data: base64_audio
+        }
       }
     }
     safe_send(payload.to_json)
@@ -92,16 +161,10 @@ class GeminiBridge
   def send_turn_complete_to_gemini
     return unless @is_open && @gemini_client && @setup_completed
 
-    @logger.info('[GeminiBridge] Browser detected silence; signaling end of turn to Gemini')
-    @audio_chunks_sent = 0 
-    
-    # 音声入力の区切りを伝えるために clientContent でターン完了を通知
-    payload = {
-      clientContent: {
-        turnComplete: true
-      }
-    }
-    safe_send(payload.to_json)
+    @logger.info('[GeminiBridge] Browser detected silence; sending activityEnd to signal end of user speech')
+    @activity_started = false
+    @audio_chunks_sent = 0
+    safe_send({ realtimeInput: { activityEnd: {} } }.to_json)
   end
 
   def send_text_to_gemini(text)
@@ -149,6 +212,9 @@ class GeminiBridge
           }
         },
         realtimeInputConfig: {
+          automaticActivityDetection: {
+            disabled: true
+          },
           activityHandling: 'START_OF_ACTIVITY_INTERRUPTS'
         },
         inputAudioTranscription: {},

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>行動並び替えモード</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="full-screen-container">
+  <h2 class="difficulty-title">行動並び替えモード</h2>
+  <p class="page-lead">正しい面接マナーの順番を、番号ボタンで並べ替えてください。</p>
+
+  <div class="ordering-list">
+    <% @ordering_sets.each_with_index do |set, set_index| %>
+    <div class="ordering-card" data-answer="<%= set[:answer].join(',') %>">
+      <h3 class="ordering-title"><%= set[:title] %></h3>
+      <ol class="ordering-items" id="ordering-<%= set_index %>">
+        <% set[:items].each do |item| %>
+        <li class="ordering-item" data-value="<%= item[:id] %>"><%= item[:label] %></li>
+        <% end %>
+      </ol>
+      <div class="ordering-actions">
+        <button type="button" class="ordering-btn" data-target="ordering-<%= set_index %>" data-dir="up">上へ</button>
+        <button type="button" class="ordering-btn" data-target="ordering-<%= set_index %>" data-dir="down">下へ</button>
+        <button type="button" class="ordering-check" data-target="ordering-<%= set_index %>">確認</button>
+      </div>
+      <div class="ordering-result" id="result-<%= set_index %>"></div>
+    </div>
+    <% end %>
+  </div>
+
+  <a href="/modes" class="back-link">← モード選択に戻る</a>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // 項目を選ぶ
+  document.querySelectorAll('.ordering-item').forEach((item) => {
+    item.addEventListener('click', () => {
+      item.parentElement.querySelectorAll('.selected').forEach((el) => el.classList.remove('selected'));
+      item.classList.add('selected');
+    });
+  });
+
+  // 上へ・下へボタンで並び替え
+  document.querySelectorAll('.ordering-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const list = document.getElementById(btn.dataset.target);
+      const selected = list.querySelector('.selected');
+      if (!selected) return;
+
+      const items = Array.from(list.children);
+      const i = items.indexOf(selected);
+      const j = btn.dataset.dir === 'up' ? i - 1 : i + 1;
+      if (j < 0 || j >= items.length) return;
+
+      if (btn.dataset.dir === 'up') {
+        list.insertBefore(selected, items[j]);
+      } else {
+        list.insertBefore(items[j], selected);
+      }
+    });
+  });
+
+  // 解答確認
+  document.querySelectorAll('.ordering-check').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest('.ordering-card');
+      const list = document.getElementById(btn.dataset.target);
+      const result = document.getElementById('result-' + btn.dataset.target.split('-')[1]);
+
+      const current = Array.from(list.children).map((el) => el.dataset.value).join(',');
+      if (current === card.dataset.answer) {
+        result.textContent = '正解です！';
+        result.className = 'ordering-result correct';
+      } else {
+        result.textContent = 'もう一度考えてみましょう。';
+        result.className = 'ordering-result incorrect';
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>

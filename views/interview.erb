@@ -2,45 +2,76 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>面接練習 - ライブ音声対話モード</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面接練習</title>
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 <div class="interview-container">
-<header class="interview-header">
-<div class="header-info">
-<span class="mode-title"><%= @mode == 'real'? '本番モード': '練習モード' %></span>
-<% if @difficulty %>
-<span class="difficulty-title">難易度:<%= @difficulty.to_s.upcase %></span>
-<% end %>
-</div>
-</header>
+  <header class="interview-header">
+    <div class="header-info">
+      <span class="mode-title" id="mode-title">面接</span>
+      <span class="difficulty-badge" id="difficulty-badge"></span>
+    </div>
+  </header>
 
-<main class="interview-main">
-<div class="speech-bubble">
-<div class="bubble-header">面接官 (Gemini Live)</div>
-<div class="bubble-content" id="interviewer-text">
-<%= @current_eval || "準備ができたら「音声対話スタート」を押してください。" %>
-</div>
+  <main class="interview-main">
+    <div class="speech-bubble">
+      <div class="bubble-header">面接官</div>
+      <div class="bubble-content" id="interviewer-text">
+        準備ができたら「音声対話スタート」を押してください。
+      </div>
+    </div>
+
+    <div class="interviewer-avatar">
+      <img src="https://api.dicebear.com/7.x/bottts/svg?seed=interviewer" alt="面接官">
+    </div>
+
+    <div class="coach-panel hidden" id="coach-panel">
+      <img class="coach-avatar" src="https://api.dicebear.com/7.x/owls/svg?seed=coach" alt="コーチ">
+      <div class="coach-bubble">
+        <div class="coach-bubble-title">フクロウ先生からアドバイス</div>
+        <div class="coach-bubble-body" id="coach-text"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="interview-footer">
+    <div class="input-section">
+      <button type="button" class="send-btn" id="mic-btn">音声対話スタート</button>
+      <a href="/modes" class="btn-secondary">モード選択に戻る</a>
+    </div>
+  </footer>
 </div>
 
-<div class="interviewer-avatar">
-<img src="https://api.dicebear.com/7.x/bottts/svg?seed=interviewer" alt="面接官">
-</div>
-</main>
-
-<footer class="interview-footer">
-<div class="input-section" style="justify-content: center; margin-top: 10px;">
-<button type="button" class="send-btn" id="mic-btn" style="padding: 16px 32px; font-size: 1.1rem; background-color: #4f46e5;">
-音声対話スタート
-</button>
-<a href="/modes" class="btn-secondary" style="display: inline-block; padding: 16px 24px; text-decoration: none; border-radius: 10px; background: #e5e7eb; color: #333; margin-left: 12px; font-weight: bold;">モード選択に戻る</a>
-</div>
-</footer>
+<div class="eval-modal hidden" id="eval-modal">
+  <div class="eval-window">
+    <div class="eval-header">
+      <img src="https://api.dicebear.com/7.x/owls/svg?seed=coach" alt="コーチ">
+      <h2>面接評価結果</h2>
+    </div>
+    <div class="eval-content">
+      <div class="eval-bubble score-bubble">
+        <div class="bubble-title">採点結果</div>
+        <div class="bubble-body" id="eval-score">評価を読み込んでいます...</div>
+      </div>
+      <div class="eval-bubble advice-bubble">
+        <div class="bubble-title">アドバイス</div>
+        <div class="bubble-body" id="eval-advice">アドバイスを読み込んでいます...</div>
+      </div>
+    </div>
+    <div class="eval-footer">
+      <a href="/modes" class="btn-secondary">モード選択に戻る</a>
+      <a href="/interview?mode=<%= @mode %>&difficulty=<%= @difficulty %>" class="btn-primary">もう一度</a>
+    </div>
+  </div>
 </div>
 
 <script>
-  window.GEMINI_API_KEY = "<%= ENV['GEMINI_API_KEY'] %>";
+  window.INTERVIEW_CONFIG = {
+    mode: "<%= @mode %>",
+    difficulty: "<%= @difficulty %>"
+  };
 </script>
 <script src="/script.js"></script>
 </body>

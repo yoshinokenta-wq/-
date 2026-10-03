@@ -47,14 +47,27 @@
 - `/modes` : モード選択画面
 - `/difficulty` : 難易度選択画面
 - `/interview` : 面接画面の表示
+- `/vocabulary` : 単語帳モード
+- `/ordering` : 行動並び替えモード
+- `/evaluate` : 面接の会話ログを受け取り採点結果を返す (POST)
 - `/ws` : ブラウザと Gemini を接続する WebSocket エンドポイント
 - `/health` : サーバーの正常性確認用エンドポイント
+
+不正な `mode` / `difficulty` が渡された場合は `practice` / `normal` に補正されます。
 
 `/ws` で受け取ったブラウザメッセージは、`GeminiBridge#handle_browser_message` に渡されます。メッセージには以下の種類があります。
 
 - `audio` : マイク入力の PCM 音声データ
 - `turn_complete` : ユーザーの発話終了を通知
 - `text` : 文字入力メッセージ
+
+サーバーからブラウザへ返すメッセージは次の通りです。
+
+- `status` / `setup_complete` : 接続と準備の状態
+- `gemini_response` : 音声チャンク、返答テキスト、ユーザーの文字起こし
+- `coach_advice` : 練習モードでのコーチ役の助言
+- `evaluation` : 採点結果とアドバイス
+- `error` : エラー情報
 
 ### 3. Gemini Live 連携の詳細
 `lib/gemini_bridge.rb` は、ブラウザと Gemini Live の橋渡し役です。主な処理は次の通りです。
@@ -72,7 +85,13 @@
 - 音声出力: `AUDIO`
 - 音声設定: `ja-JP` / `Puck` ボイス
 - `realtimeInputConfig.activityHandling = START_OF_ACTIVITY_INTERRUPTS`
-- `systemInstruction` には `prompts/evaluation.txt` の面接官プロンプトが設定される
+- `systemInstruction` には `prompts/interviewer.txt` の面接官プロンプトが設定される
+
+`build_system_prompt` で、選択されたモードと難易度がプロンプトに追記されます。
+
+- 練習モード: 1問ごとに受け止めながら進む
+- 本番モード: 5問を順番に出題し、途中の助言は行わない
+- 難易度: easy / normal / hard で質問の深さを変更
 
 ### 4. 音声入力・VAD の仕組み
 ブラウザ側の `public/js/audio-recorder.js` は、マイク入力を取り込み、16kHz の PCM に変換して Gemini に送ります。
@@ -143,12 +162,14 @@
 ├── README.md                # 本プロジェクトの説明書
 ├── app.rb                   # Sinatra サーバー本体
 ├── config.ru                # Rack 起動設定
-├── gemini_evaluator.rb      # 面接評価ロジック（Gemini 利用時の評価処理）
+├── gemini_evaluator.rb      # 面接の採点ロジック（Gemini API）
 ├── kill_app.rb              # アプリ停止スクリプト
 ├── lib/
-│   └── gemini_bridge.rb     # Gemini Live WebSocket ブリッジ
+│   ├── gemini_bridge.rb     # Gemini Live WebSocket ブリッジ
+│   └── interview_data.rb    # 単語帳・並び替えモードのデータ
 ├── prompts/
-│   └── evaluation.txt       # 面接官向けシステムプロンプト
+│   ├── evaluation.txt       # 採点用の評価基準
+│   └── interviewer.txt      # 面接官用システムプロンプト
 ├── prompts.js               # プロンプト生成・連携用スクリプト
 ├── public/
 │   ├── index.html           # ブラウザのメインHTML
@@ -166,7 +187,9 @@
 │   ├── difficulty.erb       # 難易度選択画面
 │   ├── index.erb            # トップ画面
 │   ├── interview.erb        # 面接画面
-│   └── modes.erb            # モード選択画面
+│   ├── modes.erb            # モード選択画面
+│   ├── ordering.erb         # 行動並び替えモード
+│   └── vocabulary.erb       # 単語帳モード
 ├── 参考コード/
 │   ├── Geminiライブとの通信コード/
 │   ├── 面接官アニメーション：サンプルコード/

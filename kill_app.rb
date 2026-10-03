@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'bundler/setup'
+require 'dotenv/load'
+
 pid_file = File.expand_path('.server.pid', __dir__)
 port = (ENV['PORT'] || 4567).to_i
 

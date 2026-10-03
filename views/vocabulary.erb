@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>単語帳モード</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="full-screen-container">
+  <h2 class="difficulty-title">単語帳モード</h2>
+  <p class="page-lead">面接で頻出する言葉を、クリックして意味と読みを確認できます。</p>
+
+  <div class="vocab-list">
+    <% @vocabulary.each do |item| %>
+    <details class="vocab-item">
+      <summary class="vocab-word"><%= item[:word] %></summary>
+      <div class="vocab-body">
+        <div class="vocab-reading">読み: <%= item[:reading] %></div>
+        <div class="vocab-meaning">意味: <%= item[:meaning] %></div>
+        <% if item[:example] %>
+        <div class="vocab-example">例: <%= item[:example] %></div>
+        <% end %>
+      </div>
+    </details>
+    <% end %>
+  </div>
+
+  <a href="/modes" class="back-link">← モード選択に戻る</a>
+</div>
+</body>
+</html>
