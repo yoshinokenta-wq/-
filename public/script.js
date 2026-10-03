@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const micBtn = document.getElementById('mic-btn');
   const interviewerText = document.getElementById('interviewer-text');
   const avatar = document.querySelector('.interviewer-avatar');
+  const mouthImage = document.getElementById('interviewer-mouth');
   const coachPanel = document.getElementById('coach-panel');
   const coachText = document.getElementById('coach-text');
   const modeTitle = document.getElementById('mode-title');
@@ -27,6 +28,36 @@ document.addEventListener('DOMContentLoaded', () => {
   let isSpeaking = false;
   let currentResponseText = '';
   let isAITalking = false;
+  let mouthTimer = null;
+  const mouthFrames = [
+    '/images/mouth_1.png',
+    '/images/mouth_2.png',
+    '/images/mouth_3.png',
+    '/images/mouth_4.png',
+    '/images/mouth_5.png',
+    '/images/mouth_close.png'
+  ];
+
+  function setInterviewerMouthState(talking) {
+    if (!mouthImage) return;
+
+    if (talking) {
+      avatar && avatar.classList.add('talking');
+      if (!mouthTimer) {
+        mouthTimer = setInterval(() => {
+          const randomIndex = Math.floor(Math.random() * mouthFrames.length);
+          mouthImage.src = mouthFrames[randomIndex];
+        }, 120);
+      }
+    } else {
+      avatar && avatar.classList.remove('talking');
+      if (mouthTimer) {
+        clearInterval(mouthTimer);
+        mouthTimer = null;
+      }
+      mouthImage.src = '/images/mouth_close.png';
+    }
+  }
 
   function showCoachAdvice(advice) {
     if (!coachPanel || !coachText) return;
@@ -188,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
       mediaStream: null,
       sourceNode: null,
       processorNode: null,
-      silenceThreshold: 0.01,
+      silenceThreshold: 0.1,
       silenceDurationMs: 500,
       bufferSize: 2048,
       isRecording: false,
@@ -430,10 +461,10 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           currentResponseText += messageData.text;
           interviewerText.textContent = currentResponseText;
-          avatar.classList.add('talking');
         }
 
         if (messageData.audio_chunks && Array.isArray(messageData.audio_chunks)) {
+          setInterviewerMouthState(true);
           for (const chunk of messageData.audio_chunks) {
             if (chunk && chunk.data) {
               player.enqueuePcmChunk(chunk.data);
@@ -444,6 +475,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (messageData.turn_complete) {
           avatar.classList.remove('talking');
           isAITalking = false;
+          setInterviewerMouthState(false);
           if (player) player.flush();
         }
       };
@@ -474,6 +506,7 @@ document.addEventListener('DOMContentLoaded', () => {
     micBtn.textContent = '音声対話スタート';
     avatar.classList.remove('talking');
     isAITalking = false;
+    setInterviewerMouthState(false);
 
     if (silenceTimer) {
       clearTimeout(silenceTimer);
