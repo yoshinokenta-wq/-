@@ -25,6 +25,97 @@
     - 終了が確認されたとき、画面右寄りの中央にコーチングするキャラクターを配置
     - そのキャラクターの下側にふきだしをつくり、ふきだし内の左側には採点結果、右側にはアドバイスを表示する
     - ふきだしの下に終了してモード選択画面に戻るボタンともう一度そのモードと難易度を繰り返すボタンを配置
+
+## システム詳細
+
+### 1. 全体構成
+このアプリは、ブラウザ上の音声対話 UI と、Ruby のサーバー、Gemini Live API を連携させた構成です。実際の通信は以下の流れで動作します。
+
+1. ブラウザが `/ws` に WebSocket 接続を開く
+2. Sinatra サーバーが `GeminiBridge` を生成する
+3. `GeminiBridge` が `GEMINI_API_KEY` を確認し、APIキーが存在しない場合はモックモードで起動する
+4. APIキーがある場合は、Gemini Live の WebSocket に接続して `setup` を送信する
+5. Gemini が接続完了後に最初の質問を返し、ユーザーの音声入力を待機する
+6. ブラウザ側でマイク入力と VAD（音声活動検出）が行われ、無音判定後に「turn_complete」をサーバーへ送る
+7. サーバーがそのイベントを Gemini Live に転送し、Gemini の応答テキストと音声をブラウザへ返す
+8. ブラウザは返ってきた音声を `AudioPlayer` で再生し、テキストは会話ログへ追加する
+
+### 2. サーバー側の責務
+`app.rb` は Sinatra ベースの Web アプリケーションで、ルーティングと WebSocket のハンドリングを担当します。
+
+- `/` : トップ画面
+- `/modes` : モード選択画面
+- `/difficulty` : 難易度選択画面
+- `/interview` : 面接画面の表示
+- `/ws` : ブラウザと Gemini を接続する WebSocket エンドポイント
+- `/health` : サーバーの正常性確認用エンドポイント
+
+`/ws` で受け取ったブラウザメッセージは、`GeminiBridge#handle_browser_message` に渡されます。メッセージには以下の種類があります。
+
+- `audio` : マイク入力の PCM 音声データ
+- `turn_complete` : ユーザーの発話終了を通知
+- `text` : 文字入力メッセージ
+
+### 3. Gemini Live 連携の詳細
+`lib/gemini_bridge.rb` は、ブラウザと Gemini Live の橋渡し役です。主な処理は次の通りです。
+
+- `start` : APIキーの有無でモックモードまたは本番モードを選択
+- `connect_to_gemini` : Gemini Live の WebSocket に接続
+- `build_setup_payload` : モデル設定と `systemInstruction` を構成
+- `build_initial_trigger_payload` : 最初の質問を発火するための初期メッセージを作成
+- `on_gemini_message` : Gemini からの `setupComplete` や `serverContent` を処理
+- `safe_send` : Gemini へ JSON ベースのメッセージを送信
+
+本番モードでは、以下の設定が送られます。
+
+- モデル: `models/gemini-3.8-live`
+- 音声出力: `AUDIO`
+- 音声設定: `ja-JP` / `Puck` ボイス
+- `realtimeInputConfig.activityHandling = START_OF_ACTIVITY_INTERRUPTS`
+- `systemInstruction` には `prompts/evaluation.txt` の面接官プロンプトが設定される
+
+### 4. 音声入力・VAD の仕組み
+ブラウザ側の `public/js/audio-recorder.js` は、マイク入力を取り込み、16kHz の PCM に変換して Gemini に送ります。
+
+- `getUserMedia` でマイク入力を取得
+- `AudioContext` で入力音声を処理
+- `_downsampleTo16k` で入力サンプルを 16kHz に変換
+- 16-bit PCM に変換して Base64 形式で送信
+- 無音時間を `silenceThreshold` と `silenceDurationMs` で判定
+- 無音時間が閾値を超えると `turn_complete` を送信して応答を切り替える
+
+この設計により、ユーザーが話し終わったタイミングを自動的に検出し、Gemini の応答待ちに入ることができます。
+
+### 5. 音声再生と表示
+`public/js/audio-player.js` は Gemini から返ってきた音声を再生するための責務を持ちます。
+
+- Gemini は 24kHz の PCM 音声を返す
+- 受け取った Base64 をデコードして `AudioBuffer` に変換
+- 連続した音声チャンクをバッファリングして滑らかに再生
+- 割り込み時には `stop()` で再生を止める
+
+テキスト応答は `public/js/app.js` で会話ログに追記されます。ユーザーの発話文と Gemini の応答文が同時に表示される構成で、対話の流れが可視化されます。
+
+### 6. モックモードと障害耐性
+`GEMINI_API_KEY` が未設定、または空文字のときは、`GeminiBridge#start_mock_session` が起動します。
+
+- Gemini Live へ接続せずにモック応答を返す
+- ローカル開発やデモ環境で UI を確認できる
+- API キーがある条件でのみ本番接続を行う
+
+また、WebSocket 接続が切れた場合や API エラー時は、`notify_browser` を使ってブラウザ側に `status` / `error` メッセージを送信し、ユーザーへ現状を伝えます。
+
+### 7. 実装上の設計意図
+このアプリの主要な設計意図は、「高校面接の練習をブラウザ内で完結させる」ことです。ユーザーはマイクとブラウザだけで面接練習を始められ、サーバー側は Gemini Live との橋渡しとセッション制御に集中しています。
+
+これにより、以下の特性を実現しています。
+
+- 外国籍生徒でも簡単に使えるブラウザベースのUI
+- 日本語音声対話による自然な面接練習
+- VAD による無音検知でターンを自動制御
+- モックモードによる開発とデモの容易さ
+- Ruby + WebSocket + Gemini Live のシンプルな連携アーキテクチャ
+
 ## モード別の機能
 - 練習モード
     - 一問一答形式
@@ -44,35 +135,46 @@
 
 ```
 .
-├── app.rb                   # サーバー本体 (Sinatra + Puma + Faye::WebSocket)
-├── kill_app.rb              # サーバー停止スクリプト
-├── test_app.rb              # テストスクリプト
-├── config.ru                # Rack設定
-├── Gemfile                  # 依存gem定義
+├── .env                     # ローカル環境変数（GEMINI_API_KEY 等）
 ├── .env.example             # 環境変数テンプレート
-├── gemini_evaluator.rb       # Gemini APIによる面接評価
-├── prompts/
-│   └── evaluation.txt       # 評価用システムプロンプト
+├── .gitignore               # Git 除外設定
+├── Gemfile                  # Ruby 依存関係定義
+├── Gemfile.lock             # 依存関係ロックファイル
+├── README.md                # 本プロジェクトの説明書
+├── app.rb                   # Sinatra サーバー本体
+├── config.ru                # Rack 起動設定
+├── gemini_evaluator.rb      # 面接評価ロジック（Gemini 利用時の評価処理）
+├── kill_app.rb              # アプリ停止スクリプト
 ├── lib/
-│   └── gemini_bridge.rb     # Gemini 3.8 Live API WebSocket ブリッジ
+│   └── gemini_bridge.rb     # Gemini Live WebSocket ブリッジ
+├── prompts/
+│   └── evaluation.txt       # 面接官向けシステムプロンプト
+├── prompts.js               # プロンプト生成・連携用スクリプト
 ├── public/
-│   ├── index.html           # チャットUI画面
+│   ├── index.html           # ブラウザのメインHTML
+│   ├── title                # 画面タイトル関連の静的ファイル
+│   ├── style.css            # アプリ全体の共通スタイル
+│   ├── script.js            # 画面制御用スクリプト
 │   ├── css/
-│   │   └── style.css        # チャットUIのスタイル
-│   ├── style.css            # 面接練習画面のスタイル
-│   ├── script.js            # 面接練習画面のスクリプト
+│   │   └── style.css        # UI用のCSS
 │   └── js/
-│       ├── audio-player.js  # 24kHz PCM 音声再生キュー
-│       ├── audio-recorder.js# 16kHz PCM 録音 & 無音判定 (VAD)
-│       └── app.js           # UI & WebSocket 連携ロジック
-└── views/                   # Sinatra ERB画面
-    ├── index.erb
-    ├── modes.erb
-    ├── difficulty.erb
-    └── interview.erb
+│       ├── app.js           # WebSocket と UI 連携
+│       ├── audio-player.js  # Gemini 音声再生処理
+│       └── audio-recorder.js# 16kHz PCM 録音・VAD 処理
+├── test_app.rb              # テスト実行スクリプト
+├── views/
+│   ├── difficulty.erb       # 難易度選択画面
+│   ├── index.erb            # トップ画面
+│   ├── interview.erb        # 面接画面
+│   └── modes.erb            # モード選択画面
+├── 参考コード/
+│   ├── Geminiライブとの通信コード/
+│   ├── 面接官アニメーション：サンプルコード/
+│   └── 面接練習システムUIコード/
+└── .git/                   # Git 管理用（通常は除外対象）
 ```
 
-
+> 実際の開発対象は上記の app.rb / lib / public / views / prompts 配下が中心です。参考コード配下は、参考実装やサンプルとして保持されているものです。
 
 ## 前提条件
 
