@@ -252,13 +252,23 @@ class GeminiBridge
   end
 
   def on_gemini_message(raw_data)
-    @logger.debug("[GeminiBridge] <<< RAW: #{raw_data[0..400]}")
     begin
       parsed = JSON.parse(raw_data)
     rescue JSON::ParserError
-      @logger.error("[GeminiBridge] Non-JSON message from Gemini: #{raw_data[0..300]}")
-      notify_browser({ type: 'error', message: "Gemini APIエラー: #{raw_data[0..200]}" })
+      preview = raw_data.to_s.gsub(/\s+/, ' ').strip
+      @logger.warn("[GeminiBridge] Non-JSON message from Gemini: #{preview[0, 200]}")
+      notify_browser({ type: 'error', message: "Gemini APIエラー: #{preview[0, 200]}" })
       return
+    end
+
+    if parsed.is_a?(Hash)
+      summary = {
+        has_error: parsed.key?('error'),
+        has_setupComplete: parsed.key?('setupComplete'),
+        has_serverContent: parsed.key?('serverContent'),
+        keys: parsed.keys.first(8)
+      }
+      @logger.debug("[GeminiBridge] <<< #{summary.to_json}")
     end
 
     if parsed.key?('error')
