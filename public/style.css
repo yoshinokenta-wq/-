@@ -12,6 +12,11 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  background-image: url("/images/mensetu%20haikei.png");
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 /* 非表示切り替え用共通クラス */
