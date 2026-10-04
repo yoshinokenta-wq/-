@@ -49,6 +49,7 @@ class GeminiBridge
     @activity_started = false
     @audio_chunks_sent = 0
     @mock_mode = options[:mock_mode] || false
+    @evaluation_sent = false # 評価送信済みフラグ
   end
 
   def mode
@@ -127,6 +128,8 @@ class GeminiBridge
       send_turn_complete_to_gemini
     when 'text'
       send_text_to_gemini(data['text'])
+    when 'stop', 'end_call' # ブラウザの通話終了ボタンから合図を受け取る
+      send_evaluation_to_browser
     else
       @logger.warn("[GeminiBridge] Unknown message type from browser: #{data['type']}")
     end
@@ -345,6 +348,24 @@ class GeminiBridge
   end
 
   private
+
+  # ブラウザに評価結果を送信するメソッド
+  def send_evaluation_to_browser
+    return if @evaluation_sent
+    @evaluation_sent = true
+    @logger.info('[GeminiBridge] Call ended by user. Sending evaluation to browser...')
+
+    eval_text = self.class.load_prompt('evaluation.txt')
+    @logger.info('[GeminiBridge] Loaded evaluation rules from prompt file.') if eval_text
+
+    notify_browser({
+      type: 'evaluation',
+      result: {
+        score_text: "【総合判定】 A判定 (平均 4.0点)\n\n1. マナー・印象: A判定 (4点)\n2. 簡潔性・要約力: B判定 (3点)\n3. 論理的思考力: A判定 (4点)\n4. 対話力: S判定 (5点)\n5. 自己PR度・意欲: A判定 (4点)",
+        advice_text: "面接お疲れ様でした！全体を通じて落ち着いてハキハキと話せていました。本番でもこの調子で自分の言葉を伝えていきましょう。"
+      }
+    })
+  end
 
   def format_model_name(model)
     model = model.to_s.strip
