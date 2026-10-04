@@ -208,6 +208,7 @@ body {
 
 /* ===== 5. 面接画面 ===== */
 .interview-container {
+  --interviewer-size: min(720px, 90vw, max(160px, calc(100vh - 220px)));
   width: 100vw;
   max-width: 100%;
   min-height: 100vh;
@@ -245,7 +246,7 @@ body {
   display: flex;
   align-items: center;
   width: 100%;
-  min-height: 440px;
+  min-height: var(--interviewer-size);
   margin: 10px 0;
 }
 
@@ -287,15 +288,13 @@ body {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 360px;
-  height: 360px;
+  width: var(--interviewer-size);
+  height: var(--interviewer-size);
   background: #f3f4f6;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 5px solid #e5e7eb;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
   z-index: 2;
   overflow: hidden;
 }
@@ -668,11 +667,10 @@ body {
 
 .interviewer-avatar {
   flex: 0 0 auto;
-  width: 240px;
-  height: 240px;
+  width: var(--interviewer-size);
+  height: var(--interviewer-size);
   border-radius: 50%;
   background: #f3f4f6;
-  border: 4px solid #e5e7eb;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
       mediaStream: null,
       sourceNode: null,
       processorNode: null,
-      silenceThreshold: 0.1,
+      silenceThreshold: 0.05,
       silenceDurationMs: 500,
       bufferSize: 2048,
       isRecording: false,
