@@ -1,5 +1,6 @@
 # images
 
+mensetu haikei.png　面接練習・本番モードの背景
 Culcture.png　タイトル画像
 body_honban.png　面接官役のキャラクター
 hukurou.png　コーチ役のキャラクター
@@ -11,4 +12,3 @@ mouth_3.png　面接官役のうの形の口
 mouth_4.png　面接官役のえの形の口
 mouth_5.png　面接官役のおの形の口
 mouth_close.png　面接官役の閉じた口
-
