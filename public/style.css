@@ -14,11 +14,6 @@ body {
   min-height: 100vh;
 }
 
-body.interview-page {
-  background: #f0d2cf url("/images/mensetu%20haikei.png") center / cover fixed no-repeat;
-  align-items: stretch;
-}
-
 /* 非表示切り替え用共通クラス */
 .hidden {
   display: none !important;
@@ -893,8 +888,16 @@ body.interview-page {
   border: 2px solid #e5e7eb;
   border-radius: 10px;
   cursor: pointer;
-  font-size: 1rem;
-  color: #1f2937;
+  text-align: center;
+}
+
+.ordering-item img {
+  max-width: 100%;
+  height: 90px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+  pointer-events: none;
 }
 
 .ordering-item.selected {
