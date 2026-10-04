@@ -143,10 +143,10 @@ body {
 
 .staggered-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 30px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
   width: 100%;
-  max-width: 1200px;
+  max-width: 760px;
   margin-bottom: 40px;
 }
 
@@ -155,20 +155,24 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 140px;
-  background: #ffffff;
-  border: 2px solid #e0e0e0;
-  border-radius: 16px;
+  aspect-ratio: 1;
+  min-width: 0;
+  padding: 16px;
+  background-color: #ffffff;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  border: 0;
+  border-radius: 20px;
   text-decoration: none;
   box-shadow: 0 8px 20px rgba(0,0,0,0.06);
   transition: all 0.3s ease;
-  padding: 16px;
 }
 
-.step-1 { margin-top: 0px; }
-.step-2 { margin-top: 25px; }
-.step-3 { margin-top: 10px; }
-.step-4 { margin-top: 35px; }
+.step-1 { background-image: url("/images/mode_button1.png"); }
+.step-2 { background-image: url("/images/mode_button2.png"); }
+.step-3 { background-image: url("/images/mode_button3.png"); }
+.step-4 { background-image: url("/images/mode_button4.png"); }
 
 .card-front { font-size: 1.3rem; font-weight: bold; color: #333; }
 .card-back { display: none; flex-direction: column; align-items: center; text-align: center; }
