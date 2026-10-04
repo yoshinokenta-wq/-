@@ -448,6 +448,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (messageData.type === 'evaluation' && messageData.result) {
           showEvaluation(messageData.result);
+          // 評価を受け取ったので、ここでWebSocketを安全に閉じる
+          if (ws) {
+            ws.close();
+            ws = null;
+          }
         }
 
         if (messageData.message && !messageData.text && !messageData.audio_chunks) {
@@ -497,7 +502,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function stopLiveSession() {
     if (isConnected && ws && ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({ type: 'turn_complete' }));
+      ws.send(JSON.stringify({ type: 'stop' }));
     }
 
     isConnected = false;
@@ -520,10 +525,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (player) {
       player.stop();
       player = null;
-    }
-    if (ws) {
-      ws.close();
-      ws = null;
     }
     if (mediaStream) {
       mediaStream.getTracks().forEach((track) => track.stop());

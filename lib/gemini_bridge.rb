@@ -125,11 +125,11 @@ class GeminiBridge
       mime_type = data['mimeType'] || 'audio/pcm;rate=16000'
       send_audio_to_gemini(data['data'], mime_type)
     when 'turn_complete'
-      send_turn_complete_to_gemini
+      send_turn_complete_to_gemini # ← 元に戻す
     when 'text'
       send_text_to_gemini(data['text'])
-    when 'stop', 'end_call' # ブラウザの通話終了ボタンから合図を受け取る
-      send_evaluation_to_browser
+    when 'stop', 'end_call'
+      send_evaluation_to_browser   # ← ここで評価を呼び出す
     else
       @logger.warn("[GeminiBridge] Unknown message type from browser: #{data['type']}")
     end

@@ -3,112 +3,159 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gemini 3.8 Live リアルタイム音声チャットデモ</title>
-  <link rel="stylesheet" href="/css/style.css">
+  <title>面接練習＆学習アプリ</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>🎙️ Gemini 3.8 Live デモ</h1>
-      <p>Ruby (Sinatra + Puma) バックエンドによるリアルタイム双方向音声チャット</p>
-    </header>
 
-    <!-- Main Status and Controls -->
-    <section class="status-card">
-      <div class="status-indicator">
-        <div id="status-dot" class="pulsing-dot"></div>
-        <div class="status-info">
-          <h2 id="status-text">未接続</h2>
-          <span id="status-subtext">「会話を開始」ボタンを押してください</span>
-        </div>
-      </div>
-      <div class="controls-group">
-        <button id="start-btn" class="btn btn-primary">▶ 会話を開始</button>
-        <button id="stop-btn" class="btn btn-danger" disabled>⏹ 停止</button>
-      </div>
-    </section>
-
-    <!-- Audio Wave Visualizer -->
-    <section class="visualizer-card">
-      <div id="wave-visualizer" class="wave-bars">
-        <div class="wave-bar"></div>
-        <div class="wave-bar"></div>
-        <div class="wave-bar"></div>
-        <div class="wave-bar"></div>
-        <div class="wave-bar"></div>
-        <div class="wave-bar"></div>
-        <div class="wave-bar"></div>
-      </div>
-    </section>
-
-    <!-- Voice Activity Detection (VAD) & Silence Monitor -->
-    <section class="vad-monitor-card">
-      <div class="vad-header">
-        <span>マイク入力 & 無音判定 (VAD) モニター</span>
-        <div class="vad-badges">
-          <span id="vad-badge" class="badge">待機中</span>
-        </div>
-      </div>
-
-      <!-- Volume Meter -->
-      <div class="meter-wrapper">
-        <div class="meter-labels">
-          <span>マイク入力音量: <strong id="volume-rms-text">0.000</strong> (<span id="packets-sent-text">0</span> パケット送信)</span>
-          <span id="sample-rate-text">16kHz</span>
-        </div>
-        <div class="meter-track">
-          <div id="meter-fill" class="meter-fill"></div>
-          <div id="threshold-line" class="meter-threshold-line"></div>
-        </div>
-      </div>
-
-      <!-- Silence Duration Countdown Bar -->
-      <div class="silence-timer-wrapper">
-        <div class="meter-labels">
-          <span>無音継続タイマー</span>
-          <span id="silence-progress-text">待機中 (500ms無音でターン終了)</span>
-        </div>
-        <div class="silence-track">
-          <div id="silence-fill" class="silence-fill"></div>
-        </div>
-      </div>
-
-      <!-- Settings Sliders -->
-      <div class="settings-grid">
-        <div class="slider-group">
-          <label>
-            <span>無音しきい値 (感度)</span>
-            <span id="threshold-val">0.010</span>
-          </label>
-          <input id="threshold-slider" type="range" min="0.002" max="0.080" step="0.002" value="0.010">
-        </div>
-        <div class="slider-group">
-          <label>
-            <span>無音判定時間 (ターン交代)</span>
-            <span id="duration-val">500 ms</span>
-          </label>
-          <input id="duration-slider" type="range" min="300" max="2000" step="50" value="500">
-        </div>
-      </div>
-    </section>
-
-    <!-- Chat and Transcript Area -->
-    <section class="chat-card">
-      <div class="chat-header">
-        <h3>💬 リアルタイム会話ログ</h3>
-      </div>
-      <div id="chat-logs" class="chat-logs">
-        <div class="log-entry system">
-          <span class="sender">システム</span>
-          <span class="content">デモアプリが準備できました。「会話を開始」を押すと、Geminiから最初の挨拶が始まります。</span>
-        </div>
-      </div>
-    </section>
+  <!-- ===== 1. トップ画面 ===== -->
+  <div class="main-container" id="top-screen">
+    <div class="title-ui">
+      <h1 class="title-img">面接練習 ＆ 学習アプリ</h1>
+    </div>
+    <div class="menu-buttons">
+      <button class="btn" onclick="switchScreen('interview-screen')">面接練習モード</button>
+      <button class="btn" onclick="switchScreen('vocab-screen')">単語帳モード</button>
+      <button class="btn" onclick="switchScreen('ordering-screen')">並び替えモード</button>
+      <button class="btn" onclick="openModal('settings-modal')">設定</button>
+    </div>
   </div>
 
-  <!-- Scripts -->
-  <script src="/js/audio-player.js"></script>
-  <script src="/js/audio-recorder.js"></script>
-  <script src="/js/app.js"></script>
+  <!-- ===== 2. 設定モーダル ===== -->
+  <div class="modal-overlay hidden" id="settings-modal">
+    <div class="modal-window">
+      <div class="modal-header">
+        <div class="modal-title">環境設定</div>
+        <button class="close-btn" onclick="closeModal('settings-modal')">&times;</button>
+      </div>
+      <div class="settings-body">
+        <div class="setting-item">
+          <label class="setting-label">音声・音量設定</label>
+          <input type="range" class="setting-slider" min="0" max="100" value="80">
+        </div>
+        <div class="setting-item">
+          <label class="setting-label">フォントサイズ</label>
+          <div class="font-size-options">
+            <span>小</span>
+            <span>中</span>
+            <span>大</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 3. 面接画面 ===== -->
+  <div class="interview-container hidden" id="interview-screen">
+    <div class="interview-header">
+      <div class="header-info">
+        <div class="mode-title">模擬面接モード</div>
+        <div class="difficulty-badge">Normal</div>
+      </div>
+    </div>
+
+    <div class="interview-main">
+      <div class="speech-bubble">
+        <div class="bubble-header">面接官</div>
+        <div class="bubble-content">それでは、これまでの経歴と自己紹介をお願いします。</div>
+      </div>
+      <div class="interviewer-avatar">
+        <!-- アバター画像 (必要に応じてパスを変更してください) -->
+        <img src="character-base.png" alt="ベース" class="character-base">
+        <img src="character-mouth.png" alt="口" class="character-mouth">
+      </div>
+    </div>
+
+    <div class="interview-footer">
+      <div class="progress-section">
+        <div class="progress-boxes">
+          <div class="step-box active">1</div>
+          <div class="step-box">2</div>
+          <div class="step-box">3</div>
+        </div>
+        <div class="progress-text">第1問 / 全3問</div>
+      </div>
+
+      <div class="input-section">
+        <div class="input-controls">
+          <textarea id="user-input" placeholder="回答を入力してください..."></textarea>
+          <button class="send-btn">送信</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 4. 単語帳モード ===== -->
+  <div class="full-screen-container hidden" id="vocab-screen">
+    <h2 class="difficulty-title">単語帳モード</h2>
+    <p class="page-lead">用語をクリックして詳細な解説を確認しましょう。</p>
+    
+    <div class="vocab-list">
+      <div class="vocab-item">
+        <details>
+          <summary class="vocab-word">フェーズ1: 導入・アイスブレイク</summary>
+          <div class="vocab-body">
+            面接官との最初のコミュニケーションです。笑顔とハッキリとした挨拶で好印象を与えましょう。
+          </div>
+        </details>
+      </div>
+      <div class="vocab-item">
+        <details>
+          <summary class="vocab-word">フェーズ2: 深掘り質問</summary>
+          <div class="vocab-body">
+            実績やこれまでの行動特性について、具体的なエピソードを交えて論理的に説明するフェーズです。
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <a href="#" class="back-link" onclick="switchScreen('top-screen')">← トップに戻る</a>
+  </div>
+
+  <!-- ===== 5. 並び替えモード ===== -->
+  <div class="full-screen-container hidden" id="ordering-screen">
+    <h2 class="difficulty-title">並び替えモード</h2>
+    <p class="page-lead">カードを正しい手順のスロットに配置してください。</p>
+    
+    <div class="card-bank">
+      <div class="source-card"><img src="card1.png" class="card-img" alt="手順1"></div>
+      <div class="source-card"><img src="card2.png" class="card-img" alt="手順2"></div>
+    </div>
+
+    <div class="slots-container">
+      <div class="order-slot">
+        <span class="slot-number">1</span>
+        <div class="slot-content"></div>
+      </div>
+      <div class="order-slot">
+        <span class="slot-number">2</span>
+        <div class="slot-content"></div>
+      </div>
+    </div>
+
+    <div class="ordering-actions">
+      <button class="ordering-reset">リセット</button>
+      <button class="ordering-check">判定する</button>
+    </div>
+    <div class="ordering-result" id="ordering-result"></div>
+
+    <a href="#" class="back-link" onclick="switchScreen('top-screen')">← トップに戻る</a>
+  </div>
+
+  <!-- 画面切り替え用の簡易スクリプト（動作確認用） -->
+  <script>
+    function switchScreen(screenId) {
+      document.querySelectorAll('.main-container, .interview-container, .full-screen-container').forEach(el => {
+        el.classList.add('hidden');
+      });
+      document.getElementById(screenId).classList.remove('hidden');
+    }
+    function openModal(modalId) {
+      document.getElementById(modalId).classList.remove('hidden');
+    }
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.add('hidden');
+    }
+  </script>
 </body>
 </html>
