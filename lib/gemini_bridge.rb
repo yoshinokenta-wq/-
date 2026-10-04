@@ -4,6 +4,8 @@ require 'json'
 require 'websocket-client-simple'
 require 'logger'
 require 'eventmachine'
+require 'net/http'
+require 'uri'
 
 class GeminiBridge
   GEMINI_HOST = 'generativelanguage.googleapis.com'
@@ -49,7 +51,8 @@ class GeminiBridge
     @activity_started = false
     @audio_chunks_sent = 0
     @mock_mode = options[:mock_mode] || false
-    @evaluation_sent = false # 評価送信済みフラグ
+    @evaluation_sent = false
+    @conversation_history = []
   end
 
   def mode
@@ -60,7 +63,6 @@ class GeminiBridge
     @difficulty
   end
 
-  # 難易度ごとの出題指引
   def difficulty_rule
     case @difficulty
     when 'easy'
@@ -72,7 +74,6 @@ class GeminiBridge
     end
   end
 
-  # モードごとの面接の進め方
   def mode_instruction
     if @mode == 'real'
       "実際の入試と同じように、#{TOTAL_QUESTIONS}問を順番に出題してください。" \
@@ -84,7 +85,6 @@ class GeminiBridge
     end
   end
 
-  # ベースプロンプトにモードと難易度の条件を付与する
   def build_system_prompt
     base = self.class.default_system_prompt
     mode_label = MODE_LABELS.fetch(@mode, '練習モード')
@@ -125,11 +125,11 @@ class GeminiBridge
       mime_type = data['mimeType'] || 'audio/pcm;rate=16000'
       send_audio_to_gemini(data['data'], mime_type)
     when 'turn_complete'
-      send_turn_complete_to_gemini # ← 元に戻す
+      send_turn_complete_to_gemini
     when 'text'
       send_text_to_gemini(data['text'])
     when 'stop', 'end_call'
-      send_evaluation_to_browser   # ← ここで評価を呼び出す
+      send_evaluation_to_browser
     else
       @logger.warn("[GeminiBridge] Unknown message type from browser: #{data['type']}")
     end
@@ -142,12 +142,7 @@ class GeminiBridge
 
     unless @activity_started
       @activity_started = true
-      @logger.info('[GeminiBridge] Sending activityStart for new user turn')
       safe_send({ realtimeInput: { activityStart: {} } }.to_json)
-    end
-
-    if @audio_chunks_sent == 1 || (@audio_chunks_sent % 40).zero?
-      @logger.info("[GeminiBridge] Streaming audio to Gemini... (chunk ##{@audio_chunks_sent}, mime: #{mime_type}, bytes: #{base64_audio.length})")
     end
 
     payload = {
@@ -164,7 +159,6 @@ class GeminiBridge
   def send_turn_complete_to_gemini
     return unless @is_open && @gemini_client && @setup_completed
 
-    @logger.info('[GeminiBridge] Browser detected silence; sending activityEnd to signal end of user speech')
     @activity_started = false
     @audio_chunks_sent = 0
     safe_send({ realtimeInput: { activityEnd: {} } }.to_json)
@@ -258,37 +252,18 @@ class GeminiBridge
     begin
       parsed = JSON.parse(raw_data)
     rescue JSON::ParserError
-      preview = raw_data.to_s.gsub(/\s+/, ' ').strip
-      @logger.warn("[GeminiBridge] Non-JSON message from Gemini: #{preview[0, 200]}")
-      notify_browser({ type: 'error', message: "Gemini APIエラー: #{preview[0, 200]}" })
       return
-    end
-
-    if parsed.is_a?(Hash)
-      summary = {
-        has_error: parsed.key?('error'),
-        has_setupComplete: parsed.key?('setupComplete'),
-        has_serverContent: parsed.key?('serverContent'),
-        keys: parsed.keys.first(8)
-      }
-      @logger.debug("[GeminiBridge] <<< #{summary.to_json}")
     end
 
     if parsed.key?('error')
       err_msg = parsed['error']['message'] || parsed['error'].to_s
       @logger.error("[GeminiBridge] Error from Gemini API: #{err_msg}")
-      notify_browser({ type: 'error', message: "Gemini APIエラー: #{err_msg}" })
       return
     end
 
     if parsed.key?('setupComplete')
       @setup_completed = true
-      @logger.info('[GeminiBridge] Setup complete received. Triggering initial turn from Gemini...')
-      notify_browser({
-        type: 'setup_complete',
-        message: '面接官が接続しました。まもなく質問が始まります...'
-      })
-
+      notify_browser({ type: 'setup_complete', message: '面接官が接続しました。まもなく質問が始まります...' })
       safe_send(build_initial_trigger_payload.to_json)
       return
     end
@@ -302,6 +277,10 @@ class GeminiBridge
       user_transcript = server_content.dig('inputTranscription', 'text') ||
                         server_content.dig('interimInputTranscription', 'text')
       model_transcript = server_content.dig('outputTranscription', 'text')
+
+      if user_transcript && !user_transcript.strip.empty?
+        @conversation_history << { role: 'user', text: user_transcript }
+      end
 
       audio_parts = []
       text_parts = []
@@ -321,8 +300,8 @@ class GeminiBridge
       response_text = text_parts.join('')
       response_text = model_transcript if response_text.empty? && model_transcript
 
-      if !audio_parts.empty? || !response_text.empty? || turn_complete
-        @logger.info("[GeminiBridge] Gemini responding: audio_chunks=#{audio_parts.length}, text='#{response_text}', turn_complete=#{turn_complete}")
+      if response_text && !response_text.strip.empty?
+        @conversation_history << { role: 'model', text: response_text }
       end
 
       notify_browser({
@@ -338,33 +317,121 @@ class GeminiBridge
 
   def on_gemini_close(e)
     @is_open = false
-    @logger.info("[GeminiBridge] Gemini WebSocket closed: #{e}")
-    notify_browser({ type: 'status', message: '面接が終了しました（切断されました）' })
   end
 
   def on_gemini_error(e)
     @logger.error("[GeminiBridge] Gemini WebSocket error: #{e}")
-    notify_browser({ type: 'error', message: "Gemini エラー: #{e}" })
   end
 
   private
 
-  # ブラウザに評価結果を送信するメソッド
   def send_evaluation_to_browser
     return if @evaluation_sent
     @evaluation_sent = true
-    @logger.info('[GeminiBridge] Call ended by user. Sending evaluation to browser...')
+    @logger.info('[GeminiBridge] Call ended by user. Generating actual evaluation from Gemini...')
 
-    eval_text = self.class.load_prompt('evaluation.txt')
-    @logger.info('[GeminiBridge] Loaded evaluation rules from prompt file.') if eval_text
+    eval_rules = self.class.load_prompt('evaluation.txt') || '以下の面接のやり取りを評価し、採点結果とアドバイスをまとめてください。'
+    
+    transcript_text = @conversation_history.map { |h| "#{h[:role] == 'user' ? '応募者' : '面接官'}: #{h[:text]}" }.join("\n")
+    
+    if transcript_text.strip.empty?
+      transcript_text = '（会話が行われませんでした、または音声認識が記録されませんでした）'
+    end
+
+    score_text, advice_text = fetch_evaluation_from_gemini(eval_rules, transcript_text)
 
     notify_browser({
       type: 'evaluation',
       result: {
-        score_text: "【総合判定】 A判定 (平均 4.0点)\n\n1. マナー・印象: A判定 (4点)\n2. 簡潔性・要約力: B判定 (3点)\n3. 論理的思考力: A判定 (4点)\n4. 対話力: S判定 (5点)\n5. 自己PR度・意欲: A判定 (4点)",
-        advice_text: "面接お疲れ様でした！全体を通じて落ち着いてハキハキと話せていました。本番でもこの調子で自分の言葉を伝えていきましょう。"
+        score_text: score_text,
+        advice_text: advice_text
       }
     })
+  end
+
+  def fetch_evaluation_from_gemini(eval_rules, transcript_text)
+    return fallback_evaluation('APIキーが設定されていないか、モックモードです。') if @api_key.nil? || @api_key.strip.empty?
+
+    # ★ 評価用モデルを最新の gemini-3.8-flash に変更
+    eval_model = ENV['GEMINI_EVAL_MODEL'] || 'gemini-3.8-flash'
+    uri = URI("https://generativelanguage.googleapis.com/v1beta/models/#{eval_model}:generateContent?key=#{@api_key}")
+
+    prompt = <<~PROMPT
+      #{eval_rules}
+
+      以下は実際の面接における「面接官」と「応募者」の対話ログです。
+      このログを分析し、以下のJSON形式のみで回答してください（他のテキストやマークダウンは含めないでください）。
+
+      {
+        "score_text": "ここに各評価項目やスコア判定をまとめて記述してください",
+        "advice_text": "ここに面接全体に対する具体的なアドバイスやフィードバックを記述してください"
+      }
+
+      【対話ログ】
+      #{transcript_text}
+    PROMPT
+
+    body = {
+      contents: [
+        {
+          parts: [
+            { text: prompt }
+          ]
+        }
+      ]
+    }
+
+    # ===== ここから：503/429エラー対策のリトライ処理 =====
+    max_retries = 3
+    delay = 1.0
+    response = nil
+
+    max_retries.times do |i|
+      response = Net::HTTP.post(uri, body.to_json, 'Content-Type' => 'application/json')
+
+      # 成功した場合はループを抜ける
+      if response.is_a?(Net::HTTPSuccess)
+        break
+      end
+
+      # 503（高負荷）または 429（レート制限）かつ、まだリトライ回数が残っている場合
+      if (response.code.to_i == 503 || response.code.to_i == 429) && i < max_retries - 1
+        @logger.warn("[GeminiBridge] サーバー混雑(#{response.code})を検知しました。#{delay}秒後に再試行します... (#{i + 1}回目)")
+        sleep(delay)
+        delay *= 2 # 待ち時間を倍にする（1秒 → 2秒 → 4秒）
+      else
+        # その他のエラー、またはリトライ上限に達した場合はループを抜ける
+        break
+      end
+    end
+    # ===== ここまで =====
+
+    unless response.is_a?(Net::HTTPSuccess)
+      @logger.error("[GeminiBridge] Failed to fetch evaluation HTTP Error: #{response.code} #{response.body}")
+      return fallback_evaluation("API通信エラー (#{response.code}): #{response.body[0, 100]}")
+    end
+
+    data = JSON.parse(response.body)
+    raw_text = data.dig('candidates', 0, 'content', 'parts', 0, 'text')
+    
+    cleaned_json = raw_text.gsub(/```json|```/, '').strip
+    parsed_result = JSON.parse(cleaned_json)
+
+    [
+      parsed_result['score_text'] || 'スコアデータが取得できませんでした。',
+      parsed_result['advice_text'] || 'アドバイスが取得できませんでした。'
+    ]
+  rescue => e
+    @logger.error("[GeminiBridge] Error generating evaluation: #{e.class} - #{e.message}")
+    @logger.error(e.backtrace.join("\n"))
+    fallback_evaluation("評価の生成中にエラーが発生しました (#{e.message})")
+  end
+  
+  def fallback_evaluation(reason)
+    [
+      "【総合判定】 評価保留\n\n#{reason}",
+      "十分な対話ログが取得できなかったか、評価の生成中にエラーが発生しました。もう一度やり取りを行ってから終了してください。"
+    ]
   end
 
   def format_model_name(model)
@@ -378,15 +445,12 @@ class GeminiBridge
 
   def connect_to_gemini
     url = "wss://#{GEMINI_HOST}#{GEMINI_PATH}?key=#{@api_key}"
-    @logger.info("[GeminiBridge] Connecting to Gemini Live API: #{@model}")
-
     bridge = self
 
     begin
       @gemini_client = WebSocket::Client::Simple.connect(url)
     rescue => e
       @logger.error("[GeminiBridge] Failed to connect to Gemini Live: #{e.message}")
-      notify_browser({ type: 'error', message: "Gemini接続エラー: #{e.message}" })
       return
     end
 
@@ -440,10 +504,7 @@ class GeminiBridge
   def start_mock_session
     @is_open = true
     @setup_completed = true
-    notify_browser({
-      type: 'setup_complete',
-      message: '[MOCK] 面接の準備が完了しました。'
-    })
+    notify_browser({ type: 'setup_complete', message: '[MOCK] 面接の準備が完了しました。' })
     Thread.new do
       sleep 0.5
       notify_browser({
