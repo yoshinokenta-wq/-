@@ -43,23 +43,13 @@ module InterviewData
 
   ORDERING_SETS = [
     {
-      title: '面接の入退室の正しい流れ',
-      answer: %w[2 4 1 3],
+      title: "正しい入室・着席の流れ",
+      answer: ["nokku", "ozigi", "seki", "suwaru"],
       items: [
-        { id: '1', label: 'ノックして「失礼します」と言い入室する' },
-        { id: '2', label: '「どうぞ」という声を待ってから入る' },
-        { id: '3', label: '退室時も「失礼しました」と挨拶して出る' },
-        { id: '4', label: '指定された席に座り、開始を待つ' }
-      ]
-    },
-    {
-      title: '質問されたときの正しい姿勢',
-      answer: %w[1 3 2 4],
-      items: [
-        { id: '1', label: '「はい」と返事をして、姿勢を正す' },
-        { id: '2', label: '相手の目を見て、聞こえた内容を確認してから答える' },
-        { id: '3', label: '内容を整理してから話し始める' },
-        { id: '4', label: '回答が終わったら、「ありがとうございました」と述べる' }
+        { id: "nokku", image: "/images/nokku.png" },
+        { id: "ozigi", image: "/images/ozigi.png" },
+        { id: "seki", image: "/images/seki.png" },
+        { id: "suwaru", image: "/images/suwaru.png" }
       ]
     }
   ].freeze
