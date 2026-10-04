@@ -878,17 +878,19 @@ body {
   padding: 0;
   display: flex;
   flex-direction: column;
+  align-items: center; /* 【追加】項目全体を中央に寄せる */
   gap: 8px;
   counter-reset: order;
 }
 
 .ordering-item {
-  padding: 12px 14px;
+  padding: 10px;
   background: #f9fafb;
   border: 2px solid #e5e7eb;
   border-radius: 10px;
   cursor: pointer;
   text-align: center;
+  width: fit-content; /* 【追加】枠の横幅を画像サイズに合わせる */
 }
 
 .ordering-item img {
@@ -929,5 +931,139 @@ body {
   font-size: 1rem;
 }
 
+.ordering-result.correct { color: #059669; }
+.ordering-result.incorrect { color: #dc2626; }
+
+/* 上部のカード置き場 */
+.card-bank {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* 選択できるカード（サイズを固定して崩れを防ぐ） */
+.source-card {
+  width: 120px;
+  height: 120px;
+  background: #ffffff;
+  border: 3px solid #e5e7eb;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 8px;
+  box-sizing: border-box;
+  transition: all 0.2s;
+}
+
+.source-card.selected {
+  border-color: #4f46e5;
+  background: #eef2ff;
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+}
+
+.source-card .card-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  display: block;
+}
+
+/* 下部のスロットコンテナ（1〜4の枠） */
+.slots-container {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* 各スロットの枠 */
+.order-slot {
+  width: 120px;
+  height: 140px;
+  background: #f8fafc;
+  border: 3px dashed #cbd5e1;
+  border-radius: 12px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: all 0.2s;
+}
+
+.order-slot:hover {
+  border-color: #94a3b8;
+}
+
+/* スロットの番号（1, 2, 3, 4） */
+.slot-number {
+  position: absolute;
+  top: 6px;
+  left: 10px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #64748b;
+}
+
+/* スロット内に入ったカード */
+.slot-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.slot-content .source-card {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+}
+
+/* アクションボタン・結果表示 */
+.ordering-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.ordering-reset {
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.ordering-check {
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  background: #4f46e5;
+  color: #ffffff;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.ordering-result {
+  margin-top: 12px;
+  font-weight: bold;
+  font-size: 1rem;
+}
 .ordering-result.correct { color: #059669; }
 .ordering-result.incorrect { color: #dc2626; }
