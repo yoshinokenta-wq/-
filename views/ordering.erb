@@ -9,27 +9,35 @@
 <body>
 <div class="full-screen-container">
   <h2 class="difficulty-title">行動並び替えモード</h2>
-  <p class="page-lead">正しい面接マナーの順番を、番号ボタンで並べ替えてください。</p>
+  <p class="page-lead">上のカードを選んで、下の1〜4の枠に順番通りに置いてください。</p>
 
   <div class="ordering-list">
     <% @ordering_sets.each_with_index do |set, set_index| %>
     <div class="ordering-card" data-answer="<%= set[:answer].join(',') %>">
       <h3 class="ordering-title"><%= set[:title] %></h3>
       
-      <!-- ▼ 【変更】文字の代わりに画像を表示するように修正 -->
-      <ol class="ordering-items" id="ordering-<%= set_index %>">
-        <% set[:items].each do |item| %>
-        <li class="ordering-item" data-value="<%= item[:id] %>">
-          <img src="<%= item[:image] %>" alt="手順画像" style="max-width: 100%; height: 80px; object-fit: contain; display: block; margin: 0 auto; pointer-events: none;">
-        </li>
+      <!-- ① 上部：選べるカード置き場 -->
+      <div class="card-bank" id="bank-<%= set_index %>">
+        <% set[:items].shuffle.each do |item| %>
+        <div class="source-card" data-id="<%= item[:id] %>">
+          <img src="<%= item[:image] %>" alt="" class="card-img">
+        </div>
         <% end %>
-      </ol>
-      <!-- ▲ 変更ここまで -->
+      </div>
+
+      <!-- ② 下部：1〜4の配置スロット -->
+      <div class="slots-container" id="slots-<%= set_index %>">
+        <% (1..set[:items].length).each do |i| %>
+        <div class="order-slot" data-slot-index="<%= i - 1 %>">
+          <span class="slot-number"><%= i %></span>
+          <div class="slot-content"></div>
+        </div>
+        <% end %>
+      </div>
 
       <div class="ordering-actions">
-        <button type="button" class="ordering-btn" data-target="ordering-<%= set_index %>" data-dir="up">上へ</button>
-        <button type="button" class="ordering-btn" data-target="ordering-<%= set_index %>" data-dir="down">下へ</button>
-        <button type="button" class="ordering-check" data-target="ordering-<%= set_index %>">確認</button>
+        <button type="button" class="ordering-reset" data-target="<%= set_index %>">やり直す</button>
+        <button type="button" class="ordering-check" data-target="<%= set_index %>">確認</button>
       </div>
       <div class="ordering-result" id="result-<%= set_index %>"></div>
     </div>
@@ -41,49 +49,77 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // 項目を選ぶ
-  document.querySelectorAll('.ordering-item').forEach((item) => {
-    item.addEventListener('click', () => {
-      item.parentElement.querySelectorAll('.selected').forEach((el) => el.classList.remove('selected'));
-      item.classList.add('selected');
+  document.querySelectorAll('.ordering-card').forEach((cardCard) => {
+    const bank = cardCard.querySelector('.card-bank');
+    const slots = cardCard.querySelectorAll('.order-slot');
+    const checkBtn = cardCard.querySelector('.ordering-check');
+    const resetBtn = cardCard.querySelector('.ordering-reset');
+    const resultDiv = cardCard.querySelector('.ordering-result');
+
+    let selectedCard = null;
+
+    // 1. 上のカードをクリックしたとき
+    bank.addEventListener('click', (e) => {
+      const card = e.target.closest('.source-card');
+      if (!card) return;
+
+      bank.querySelectorAll('.source-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedCard = card;
     });
-  });
 
-  // 上へ・下へボタンで並び替え
-  document.querySelectorAll('.ordering-btn').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const list = document.getElementById(btn.dataset.target);
-      const selected = list.querySelector('.selected');
-      if (!selected) return;
+    // 2. 下のスロットをクリックしたとき
+    slots.forEach(slot => {
+      slot.addEventListener('click', () => {
+        const slotContent = slot.querySelector('.slot-content');
 
-      const items = Array.from(list.children);
-      const i = items.indexOf(selected);
-      const j = btn.dataset.dir === 'up' ? i - 1 : i + 1;
-      if (j < 0 || j >= items.length) return;
+        if (selectedCard) {
+          if (slotContent.children.length > 0) {
+            bank.appendChild(slotContent.firstElementChild);
+          }
+          slotContent.appendChild(selectedCard);
+          selectedCard.classList.remove('selected');
+          selectedCard = null;
+        } else if (slotContent.children.length > 0) {
+          bank.appendChild(slotContent.firstElementChild);
+        }
+      });
+    });
 
-      if (btn.dataset.dir === 'up') {
-        list.insertBefore(selected, items[j]);
-      } else {
-        list.insertBefore(items[j], selected);
+    // 3. やり直すボタン
+    resetBtn.addEventListener('click', () => {
+      slots.forEach(slot => {
+        const slotContent = slot.querySelector('.slot-content');
+        if (slotContent.children.length > 0) {
+          bank.appendChild(slotContent.firstElementChild);
+        }
+      });
+      resultDiv.textContent = '';
+      resultDiv.className = 'ordering-result';
+    });
+
+    // 4. 確認ボタン
+    checkBtn.addEventListener('click', () => {
+      const currentAnswer = Array.from(slots).map(slot => {
+        const card = slot.querySelector('.source-card');
+        return card ? card.dataset.id : '';
+      });
+
+      if (currentAnswer.includes('')) {
+        resultDiv.textContent = 'すべての枠にカードを置いてください。';
+        resultDiv.className = 'ordering-result incorrect';
+        return;
       }
-      // 移動後も選択状態を保持する
-    });
-  });
 
-  // 解答確認
-  document.querySelectorAll('.ordering-check').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const card = btn.closest('.ordering-card');
-      const list = document.getElementById(btn.dataset.target);
-      const result = document.getElementById('result-' + btn.dataset.target.split('-')[1]);
+      const answerString = currentAnswer.join(',');
+      const correctAnswer = cardCard.dataset.answer;
 
-      const current = Array.from(list.children).map((el) => el.dataset.value).join(',');
-      if (current === card.dataset.answer) {
-        result.textContent = '正解です！';
-        result.className = 'ordering-result correct';
+      if (answerString === correctAnswer) {
+        resultDiv.textContent = '正解です！素晴らしいマナー理解ですね。';
+        resultDiv.className = 'ordering-result correct';
       } else {
-        result.textContent = 'もう一度考えてみましょう。';
-        result.className = 'ordering-result incorrect';
+        resultDiv.textContent = 'もう一度考えてみましょう。順番が違うようです。';
+        resultDiv.className = 'ordering-result incorrect';
       }
     });
   });
