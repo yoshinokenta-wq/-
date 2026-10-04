@@ -177,7 +177,7 @@ begin
     # Also test GET /
     root_res = Net::HTTP.get_response(URI("http://localhost:#{port}/"))
     runner.assert(root_res.is_a?(Net::HTTPSuccess), "Live server responded with 200 OK for GET /")
-    runner.assert(root_res.body.include?('Gemini 3.8 Live'), "Live server serves index.html containing 'Gemini 3.8 Live'")
+    runner.assert(root_res.body.include?('src="/images/Culcture.png"'), "Live server serves the title image on the top page")
   end
 rescue Errno::ECONNREFUSED
   puts "  \e[33m[INFO]\e[0m Server is not currently running on port #{port} (Skipping live HTTP E2E; start with 'ruby app.rb')"
