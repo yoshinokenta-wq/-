@@ -3,18 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>行動並び替えモード</title>
+<title data-i18n="ordering.page_title">行動並び替えモード</title>
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+
+<!-- 言語切り替えセレクトボックス（画面右上） -->
+<div style="position: absolute; top: 20px; right: 20px; z-index: 100;">
+<select id="language-select" onchange="window.setLanguage(this.value)" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ccc; background: #fff; cursor: pointer;">
+  <option value="ja">日本語</option>
+  <option value="en">English</option>
+</select>
+</div>
+
 <div class="full-screen-container">
-  <h2 class="difficulty-title">行動並び替えモード</h2>
-  <p class="page-lead">上のカードを選んで、下の1〜4の枠に順番通りに置いてください。</p>
+  <h2 class="difficulty-title" data-i18n="ordering.title">行動並び替えモード</h2>
+  <p class="page-lead" data-i18n="ordering.lead">上のカードを選んで、下の1〜4の枠に順番通りに置いてください。</p>
 
   <div class="ordering-list">
     <% @ordering_sets.each_with_index do |set, set_index| %>
     <div class="ordering-card" data-answer="<%= set[:answer].join(',') %>">
-      <h3 class="ordering-title"><%= set[:title] %></h3>
+      <!-- セットのタイトル（例: 正しい入室・着席の流れ） -->
+      <h3 class="ordering-title" data-i18n="ordering.set_title_1"><%= set[:title] %></h3>
       
       <!-- ① 上部：選べるカード置き場 -->
       <div class="card-bank" id="bank-<%= set_index %>">
@@ -36,15 +46,17 @@
       </div>
 
       <div class="ordering-actions">
-        <button type="button" class="ordering-reset" data-target="<%= set_index %>">やり直す</button>
-        <button type="button" class="ordering-check" data-target="<%= set_index %>">確認</button>
+        <!-- やり直すボタン -->
+        <button type="button" class="ordering-reset" data-target="<%= set_index %>" data-i18n="ordering.reset">やり直す</button>
+        <!-- 確認ボタン -->
+        <button type="button" class="ordering-check" data-target="<%= set_index %>" data-i18n="ordering.check">確認</button>
       </div>
       <div class="ordering-result" id="result-<%= set_index %>"></div>
     </div>
     <% end %>
   </div>
 
-  <a href="/modes" class="back-link">← モード選択に戻る</a>
+  <a href="/modes" class="back-link" data-i18n="ordering.back_to_modes">← モード選択に戻る</a>
 </div>
 
 <script>
@@ -105,8 +117,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return card ? card.dataset.id : '';
       });
 
+      // 💡 window.getI18nText を使って、選択中の言語のメッセージを取得する
       if (currentAnswer.includes('')) {
-        resultDiv.textContent = 'すべての枠にカードを置いてください。';
+        resultDiv.textContent = window.getI18nText('ordering.alert_fill_all');
         resultDiv.className = 'ordering-result incorrect';
         return;
       }
@@ -115,15 +128,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const correctAnswer = cardCard.dataset.answer;
 
       if (answerString === correctAnswer) {
-        resultDiv.textContent = '正解です！素晴らしいマナー理解ですね。';
+        resultDiv.textContent = window.getI18nText('ordering.correct_msg');
         resultDiv.className = 'ordering-result correct';
       } else {
-        resultDiv.textContent = 'もう一度考えてみましょう。順番が違うようです。';
+        resultDiv.textContent = window.getI18nText('ordering.incorrect_msg');
         resultDiv.className = 'ordering-result incorrect';
       }
     });
   });
 });
 </script>
+
+<!-- 共通の多言語切り替えスクリプト -->
+<script src="/js/i18n.js"></script>
 </body>
 </html>
