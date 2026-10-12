@@ -3,48 +3,64 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>モード選択</title>
+<title data-i18n="mode_select.page_title">モード選択</title>
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+
+<!-- 言語選択セレクトボックス（画面右上に配置） -->
+<div style="position: absolute; top: 20px; right: 20px; z-index: 100;">
+  <select id="language-select" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ccc; background: #fff; cursor: pointer;">
+    <option value="ja">日本語</option>
+    <option value="en">English</option>
+  </select>
+</div>
+
 <div class="full-screen-container">
-  <h2 class="difficulty-title">モード選択</h2>
+  <h2 data-i18n="mode_select.title">モード選択</h2>
 
   <div class="staggered-grid">
+    <!-- 練習モード -->
     <a href="/difficulty?mode=practice" class="mode-card step-1">
-      <div class="card-front">練習モード</div>
+      <div class="card-front" data-i18n="mode_select.practice">練習モード</div>
       <div class="card-back">
-        <span class="card-back-title">練習モード</span>
-        <span class="card-back-desc">一問一答で進める練習モードです。解答の都度、フクロウ先生からアドバイスをもらえます。</span>
+        <span class="card-back-title" data-i18n="mode_select.practice">練習モード</span>
+        <span class="card-back-desc" data-i18n="mode_select.practice_desc">一問一答で進める練習モードです。解答の都度、フクロウ先生からアドバイスをもらえます。</span>
       </div>
     </a>
 
+    <!-- 本番モード -->
     <a href="/difficulty?mode=real" class="mode-card step-2">
-      <div class="card-front">本番モード</div>
+      <div class="card-front" data-i18n="mode_select.real">本番モード</div>
       <div class="card-back">
-        <span class="card-back-title">本番モード</span>
-        <span class="card-back-desc">実際の入試と同じ流れで、5問をノンストップで解答します。途中のアドバイスはありません。</span>
+        <span class="card-back-title" data-i18n="mode_select.real">本番モード</span>
+        <span class="card-back-desc" data-i18n="mode_select.real_desc">実際の入試と同じ流れで、5問をノンストップで解答します。途中のアドバイスはありません。</span>
       </div>
     </a>
 
+    <!-- 単語帳モード -->
     <a href="/vocabulary" class="mode-card step-3">
-      <div class="card-front">単語帳モード</div>
+      <div class="card-front" data-i18n="mode_select.vocab">単語帳モード</div>
       <div class="card-back">
-        <span class="card-back-title">単語帳モード</span>
-        <span class="card-back-desc">面接で頻出する重要な言葉やフレーズの意味と読みを確認できます。</span>
+        <span class="card-back-title" data-i18n="mode_select.vocab">単語帳モード</span>
+        <span class="card-back-desc" data-i18n="mode_select.vocab_desc">面接で頻出する重要な言葉やフレーズの意味と読みを確認できます。</span>
       </div>
     </a>
 
+    <!-- 行動並び替えモード -->
     <a href="/ordering" class="mode-card step-4">
-      <div class="card-front">行動並び替えモード</div>
+      <div class="card-front" data-i18n="mode_select.ordering">行動並び替えモード</div>
       <div class="card-back">
-        <span class="card-back-title">行動並び替えモード</span>
-        <span class="card-back-desc">日本の面接マナーを、正しい順番に並べ替えて学びます。</span>
+        <span class="card-back-title" data-i18n="mode_select.ordering">行動並び替えモード</span>
+        <span class="card-back-desc" data-i18n="mode_select.ordering_desc">日本の面接マナーを、正しい順番に並べ替えて学びます。</span>
       </div>
     </a>
   </div>
 
-  <a href="/" class="back-link">← トップに戻る</a>
+  <a href="/" class="back-link" data-i18n="mode_select.back_to_top">← トップに戻る</a>
 </div>
+
+<!-- 共通の多言語切り替えスクリプト -->
+<script src="/js/i18n.js"></script>
 </body>
 </html>
