@@ -18,5 +18,24 @@
     "ordering": "行動並び替えモード",
     "ordering_desc": "日本の面接マナーを、正しい順番に並べ替えて学びます。",
     "back_to_top": "← トップに戻る"
+  },
+  "ordering": {
+    "page_title": "行動並び替えモード",
+    "title": "行動並び替えモード",
+    "lead": "上のカードを選んで、下の1〜4の枠に順番通りに置いてください。",
+    "set_title_1": "正しい入室・着席の流れ",
+    "reset": "やり直す",
+    "check": "確認",
+    "back_to_modes": "← モード選択に戻る",
+    "alert_fill_all": "すべての枠にカードを置いてください。",
+    "correct_msg": "正解です！素晴らしいマナー理解ですね。",
+    "incorrect_msg": "もう一度考えてみましょう。順番が違うようです。"
+  },
+
+
+  "difficulty_select": {
+    "page_title": "難易度選択",
+    "title": "難易度選択",
+    "back_to_modes": "← モード選択に戻る"
   }
 }
