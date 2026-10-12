@@ -1,0 +1,22 @@
+{
+  "app": {
+    "page_title": "Interview Practice - Top",
+    "subtitle": "High School Entrance Interview Practice for Foreign Junior High Students"
+  },
+  "menu": {
+    "mode_select": "Select Mode"
+  },
+  "mode_select": {
+    "page_title": "Select Mode",
+    "title": "Select Mode",
+    "practice": "Practice Mode",
+    "practice_desc": "A Q&A practice mode. You can get advice from Professor Owl after each response.",
+    "real": "Real Mode",
+    "real_desc": "Answer 5 questions non-stop, just like a real exam. No intermediate advice is provided.",
+    "vocab": "Vocabulary Mode",
+    "vocab_desc": "Check the meanings and readings of important words and phrases frequently used in interviews.",
+    "ordering": "Behavior Ordering Mode",
+    "ordering_desc": "Learn Japanese interview manners by putting them in the correct order.",
+    "back_to_top": "← Back to Top"
+  }
+}
