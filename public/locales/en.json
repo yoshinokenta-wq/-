@@ -18,5 +18,23 @@
     "ordering": "Behavior Ordering Mode",
     "ordering_desc": "Learn Japanese interview manners by putting them in the correct order.",
     "back_to_top": "← Back to Top"
+  },
+  "ordering": {
+    "page_title": "Behavior Ordering Mode",
+    "title": "Behavior Ordering Mode",
+    "lead": "Select a card from above and place it in the correct order in slots 1 to 4 below.",
+    "set_title_1": "Correct Entry & Seating Procedure",
+    "reset": "Reset",
+    "check": "Check",
+    "back_to_modes": "← Back to Mode Select",
+    "alert_fill_all": "Please place cards in all slots.",
+    "correct_msg": "Correct! Excellent understanding of manners.",
+    "incorrect_msg": "Let's try again. The order seems incorrect."
+  },
+
+  "difficulty_select": {
+    "page_title": "Select Difficulty",
+    "title": "Select Difficulty",
+    "back_to_modes": "← Back to Mode Select"
   }
 }
