@@ -2,33 +2,87 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>難易度選択</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-i18n="difficulty_select.page_title">難易度選択</title>
 <style>
-body { background-color: #f8f9fa; background-image: url("/images/mensetu%20haikei.png");
-background-position: center; background-size: cover; background-repeat: no-repeat;
-background-attachment: fixed; font-family: sans-serif; display: flex; flex-direction:
-column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
-.card-box { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px
-12px rgba(0,0,0,0.05); text-align: center; width: 320px; }
-.sub-text { color: #6c757d; font-size: 12px; margin-bottom: 24px; }
-.btn-group { display: flex; flex-direction: column; gap: 12px; }
-.btn-diff { background: white; border: 1px solid #ccc; padding: 12px; border-radius: 8px;
-text-decoration: none; color: #333; font-weight: bold; }
-.btn-diff:hover { border-color: #007bff; background-color: #f0f7ff; }
-.back-link { display: block; margin-top: 30px; color: #6c757d; text-decoration: none;
-font-size: 14px; }
+body { 
+  background-color: #f8f9fa; 
+  background-image: url("/images/mensetu%20haikei.png");
+  background-position: center; 
+  background-size: cover; 
+  background-repeat: no-repeat;
+  background-attachment: fixed; 
+  font-family: sans-serif; 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  justify-content: center; 
+  min-height: 100vh; 
+  margin: 0; 
+}
+.card-box { 
+  background: white; 
+  padding: 40px; 
+  border-radius: 16px; 
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
+  text-align: center; 
+  width: 320px; 
+}
+.sub-text { 
+  color: #6c757d; 
+  font-size: 12px; 
+  margin-bottom: 24px; 
+}
+.btn-group { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 12px; 
+}
+.btn-diff { 
+  background: white; 
+  border: 1px solid #ccc; 
+  padding: 12px; 
+  border-radius: 8px; 
+  text-decoration: none; 
+  color: #333; 
+  font-weight: bold; 
+}
+.btn-diff:hover { 
+  border-color: #007bff; 
+  background-color: #f0f7ff; 
+}
+.back-link { 
+  display: block; 
+  margin-top: 30px; 
+  color: #6c757d; 
+  text-decoration: none; 
+  font-size: 14px; 
+}
 </style>
 </head>
 <body>
+
+<!-- 言語切り替えセレクトボックス（画面右上） -->
+<div style="position: absolute; top: 20px; right: 20px; z-index: 100;">
+  <select id="language-select" onchange="window.setLanguage(this.value)" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ccc; background: #fff; cursor: pointer;">
+    <option value="ja">日本語</option>
+    <option value="en">English</option>
+  </select>
+</div>
+
 <div class="card-box">
-<h3>難易度選択</h3>
-<div class="sub-text"></div>
-<div class="btn-group">
-<a href="/interview?mode=<%= @mode %>&difficulty=easy" class="btn-diff">Easy</a>
-<a href="/interview?mode=<%= @mode %>&difficulty=normal" class="btn-diff">Normal</a>
-<a href="/interview?mode=<%= @mode %>&difficulty=hard" class="btn-diff">Hard</a>
+  <h3 data-i18n="difficulty_select.title">難易度選択</h3>
+  <div class="sub-text"></div>
+  <div class="btn-group">
+    <a href="/interview?mode=<%= @mode %>&difficulty=easy" class="btn-diff">Easy</a>
+    <a href="/interview?mode=<%= @mode %>&difficulty=normal" class="btn-diff">Normal</a>
+    <a href="/interview?mode=<%= @mode %>&difficulty=hard" class="btn-diff">Hard</a>
+  </div>
 </div>
-</div>
-<a href="/modes" class="back-link">← モード選択に戻る</a>
+
+<a href="/modes" class="back-link" data-i18n="difficulty_select.back_to_modes">← モード選択に戻る</a>
+
+<!-- 共通の多言語切り替えスクリプト -->
+<script src="/js/i18n.js"></script>
 </body>
 </html>
