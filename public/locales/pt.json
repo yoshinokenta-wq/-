@@ -31,6 +31,31 @@
     "correct_msg": "Correto! Excelente compreensão das regras de etiqueta.",
     "incorrect_msg": "Vamos tentar novamente. A ordem parece incorreta."
   },
+
+
+  "interview": {
+    "page_title": "Prática de Entrevista",
+    "header_title": "Entrevista",
+    "interviewer": "Entrevistador",
+    "ready_msg": "Quando estiver pronto, clique em \"Iniciar Chat de Voz\".",
+    "coach_title": "Conselho do Professor Coruja",
+    "start_btn": "Iniciar Chat de Voz",
+    "back_to_modes": "← Voltar à Seleção de Modo",
+    "eval_title": "Resultados da Avaliação da Entrevista",
+    "score_title": "Resultados da Pontuação",
+    "loading_eval": "Carregando avaliação...",
+    "advice_title": "Conselho",
+    "loading_advice": "Carregando conselho...",
+    "retry": "Tentar Novamente"
+  },
+
+  "vocab": {
+    "page_title": "Modo de Vocabulário",
+    "title": "Modo de Vocabulário",
+    "lead": "Clique nas palavras frequentes em entrevistas para verificar seus significados e leituras.",
+    "back_to_modes": "← Voltar à Seleção de Modo"
+  }, 
+
   "difficulty_select": {
     "page_title": "Selecionar Dificuldade",
     "title": "Selecionar Dificuldade",
