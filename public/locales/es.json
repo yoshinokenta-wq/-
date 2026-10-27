@@ -1,0 +1,39 @@
+{
+  "app": {
+    "page_title": "Práctica de Entrevista - Inicio",
+    "subtitle": "Práctica de entrevista de admisión a la escuela secundaria para estudiantes extranjeros"
+  },
+  "menu": {
+    "mode_select": "Seleccionar Modo"
+  },
+  "mode_select": {
+    "page_title": "Seleccionar Modo",
+    "title": "Seleccionar Modo",
+    "practice": "Modo Práctica",
+    "practice_desc": "Modo de práctica de preguntas y respuestas. Puedes recibir consejos del Profesor Búho después de cada respuesta.",
+    "real": "Modo Real",
+    "real_desc": "Responde 5 preguntas sin parar, igual que en un examen real. No hay consejos intermedios.",
+    "vocab": "Modo Vocabulario",
+    "vocab_desc": "Puedes verificar los significados y lecturas de palabras y frases importantes frecuentes en entrevistas.",
+    "ordering": "Modo de Ordenar Acciones",
+    "ordering_desc": "Aprende los modales de entrevista en Japón ordenándolos en la secuencia correcta.",
+    "back_to_top": "← Volver al Inicio"
+  },
+  "ordering": {
+    "page_title": "Modo de Ordenar Acciones",
+    "title": "Modo de Ordenar Acciones",
+    "lead": "Selecciona una tarjeta de arriba y colócala en el orden correcto en los espacios 1 al 4 de abajo.",
+    "set_title_1": "Procedimiento Correcto de Entrada y Asiento",
+    "reset": "Reiniciar",
+    "check": "Verificar",
+    "back_to_modes": "← Volver a Selección de Modo",
+    "alert_fill_all": "Por favor, coloca tarjetas en todos los espacios.",
+    "correct_msg": "¡Correcto! Excelente comprensión de los modales.",
+    "incorrect_msg": "Intentemos de nuevo. El orden parece incorrecto."
+  },
+  "difficulty_select": {
+    "page_title": "Seleccionar Dificultad",
+    "title": "Seleccionar Dificultad",
+    "back_to_modes": "← Volver a Selección de Modo"
+  }
+}

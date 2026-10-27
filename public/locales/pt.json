@@ -1,0 +1,39 @@
+{
+  "app": {
+    "page_title": "Prática de Entrevista - Início",
+    "subtitle": "Prática de entrevista de admissão ao ensino médio para estudantes estrangeiros"
+  },
+  "menu": {
+    "mode_select": "Selecionar Modo"
+  },
+  "mode_select": {
+    "page_title": "Selecionar Modo",
+    "title": "Selecionar Modo",
+    "practice": "Modo de Prática",
+    "practice_desc": "Modo de prática de perguntas e respostas. Você pode receber conselhos do Professor Coruja após cada resposta.",
+    "real": "Modo Real",
+    "real_desc": "Responda 5 perguntas sem parar, assim como em um exame real. Não há conselhos intermediários.",
+    "vocab": "Modo de Vocabulário",
+    "vocab_desc": "Você pode verificar os significados e leituras de palavras e frases importantes frequentes em entrevistas.",
+    "ordering": "Modo de Ordenação de Ações",
+    "ordering_desc": "Aprenda as regras de etiqueta de entrevista no Japão colocando-as na ordem correta.",
+    "back_to_top": "← Voltar ao Início"
+  },
+  "ordering": {
+    "page_title": "Modo de Ordenação de Ações",
+    "title": "Modo de Ordenação de Ações",
+    "lead": "Selecione um cartão acima e coloque-o na ordem correta nos espaços de 1 a 4 abaixo.",
+    "set_title_1": "Procedimento Correto de Entrada e Acomodação",
+    "reset": "Reiniciar",
+    "check": "Verificar",
+    "back_to_modes": "← Voltar à Seleção de Modo",
+    "alert_fill_all": "Por favor, coloque cartões em todos os espaços.",
+    "correct_msg": "Correto! Excelente compreensão das regras de etiqueta.",
+    "incorrect_msg": "Vamos tentar novamente. A ordem parece incorreta."
+  },
+  "difficulty_select": {
+    "page_title": "Selecionar Dificuldade",
+    "title": "Selecionar Dificuldade",
+    "back_to_modes": "← Voltar à Seleção de Modo"
+  }
+}
