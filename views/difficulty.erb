@@ -1,970 +1,107 @@
-/* ===== 1. 全体設定 ===== */
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
-  background-color: #f5f5f7;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-i18n="difficulty_select.page_title">難易度選択</title>
+<!-- 共通のスタイルシートを読み込むタグを追加 -->
+<link rel="stylesheet" href="/style.css">
+<style>
+body { 
+  background-color: #f8f9fa; 
   background-image: url("/images/mensetu%20haikei.png");
-  background-position: center;
-  background-size: cover;
+  background-position: center; 
+  background-size: cover; 
   background-repeat: no-repeat;
-  background-attachment: fixed;
+  background-attachment: fixed; 
+  font-family: sans-serif; 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  justify-content: center; 
+  min-height: 100vh; 
+  margin: 0; 
 }
-
-/* 非表示切り替え用共通クラス */
-.hidden {
-  display: none !important;
+.card-box { 
+  background: white; 
+  padding: 40px; 
+  border-radius: 16px; 
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
+  text-align: center; 
+  width: 320px; 
 }
-
-.image-preload {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  opacity: 0;
-  pointer-events: none;
-  z-index: -1;
+.sub-text { 
+  color: #6c757d; 
+  font-size: 12px; 
+  margin-bottom: 24px; 
 }
-
-.image-preload img {
-  display: block;
-  width: 1px;
-  height: 1px;
+.btn-group { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 12px; 
 }
-
-/* ===== 2. トップ画面・共通コンテナ ===== */
-.main-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2rem;
-  width: 100%;
-  max-width: 480px;
-  padding: 20px;
+.btn-diff { 
+  background: white; 
+  border: 1px solid #ccc; 
+  padding: 12px; 
+  border-radius: 8px; 
+  text-decoration: none; 
+  color: #333; 
+  font-weight: bold; 
 }
-
-.title-ui { width: 100%; text-align: center; }
-.title-img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
-.menu-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  width: 100%;
+.btn-diff:hover { 
+  border-color: #007bff; 
+  background-color: #f0f7ff; 
 }
-
-.btn, button.btn {
-  display: block;
-  width: 100%;
-  padding: 15px 20px;
-  background-color: #28a745;
-  color: #ffffff;
-  text-decoration: none;
-  text-align: center;
-  border-radius: 12px;
-  font-weight: bold;
-  font-size: 1.1rem;
-  border: none;
-  cursor: pointer;
-  font-family: inherit;
-  transition: background-color 0.2s;
-}
-
-.btn:hover { background-color: #218838; }
-
-/* ===== 3. 設定・評価共通モーダル ===== */
-.modal-overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  animation: fadeIn 0.4s ease;
-}
-
-.modal-window {
-  position: relative;
-  background: #ffffff;
-  width: 90%;
-  max-width: 800px;
-  border-radius: 20px;
-  padding: 32px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.modal-title {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #333;
-  border-bottom: 3px solid #4f46e5;
-  padding-bottom: 4px;
-}
-
-.close-btn {
-  background: none; border: none;
-  font-size: 1.8rem; color: #888;
-  cursor: pointer;
-}
-
-.settings-body { display: flex; flex-direction: column; gap: 20px; margin-top: 10px; }
-.setting-item { display: flex; flex-direction: column; gap: 8px; text-align: left; }
-.setting-label { font-size: 0.95rem; font-weight: bold; color: #333; }
-.setting-slider { width: 100%; accent-color: #4f46e5; cursor: pointer; }
-.font-size-options { display: flex; justify-content: space-around; background-color: #f0f0f3; padding: 10px; border-radius: 8px; }
-
-/* ===== 4. モード選択・難易度選択 ===== */
-.full-screen-container {
-  width: 100vw;
-  min-height: 100vh;
-  padding: 40px 5%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.staggered-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 24px;
-  width: 100%;
-  max-width: 760px;
-  margin-bottom: 40px;
-}
-
-.mode-card {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  aspect-ratio: 1;
-  min-width: 0;
-  padding: 16px;
-  background-color: #ffffff;
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-  border: 0;
-  border-radius: 20px;
-  text-decoration: none;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-  transition: all 0.3s ease;
-}
-
-.step-1 { background-image: url("/images/mode_button1.png"); }
-.step-2 { background-image: url("/images/mode_button2.png"); }
-.step-3 { background-image: url("/images/mode_button3.png"); }
-.step-4 { background-image: url("/images/mode_button4.png"); }
-
-.card-front { font-size: 1.3rem; font-weight: bold; color: #333; }
-.card-back { display: none; flex-direction: column; align-items: center; text-align: center; }
-.mode-card:hover { border-color: #4f46e5; background-color: #f8f9ff; transform: translateY(-6px); }
-.mode-card:hover .card-front { display: none; }
-.mode-card:hover .card-back { display: flex; }
-
-.difficulty-title { font-size: 2.2rem; font-weight: bold; color: #1a1a1a; margin-bottom: 28px; text-align: center; }
-.difficulty-menu { display: flex; flex-direction: column; gap: 22px; width: 100%; max-width: 380px; margin-bottom: 32px; }
-
-.diff-btn {
-  position: relative;
-  display: block;
-  padding: 15px 24px;
-  background-color: #ffffff;
-  color: #222222;
-  font-size: 1.25rem;
-  font-weight: bold;
-  text-align: center;
-  text-decoration: none;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  transition: all 0.25s ease;
-}
-
-.btn-easy { border: 2px solid #e0e0e0; border-bottom: 5px solid #28a745; }
-.btn-normal { border: 2px solid #e0e0e0; border-bottom: 5px solid #ffc107; }
-.btn-hard { border: 2px solid #e0e0e0; border-bottom: 5px solid #dc3545; }
-
-/* ツールチップ */
-.tooltip {
-  visibility: hidden; opacity: 0; position: absolute; top: 50%; transform: translateY(-50%);
-  width: 210px; background-color: #333; color: #fff; text-align: center; padding: 8px 12px;
-  border-radius: 8px; font-size: 0.85rem; transition: all 0.25s ease; z-index: 10;
-}
-.tip-left .tooltip { right: 105%; }
-.tip-right .tooltip { left: 105%; }
-.diff-btn:hover .tooltip { visibility: visible; opacity: 1; }
-
-/* 💡 【ブラッシュアップ】すべての画面の「モード選択に戻る」ボタン（.back-link）のデザインを面接モード等と完全に統一 */
-.back-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+/* 統一された「戻る」ボタンのデザイン（style.cssの内容と一致させました） */
+.back-link { 
+  display: inline-block;
   margin-top: 30px;
-  padding: 12px 24px;
-  background-color: #ffffff;
+  padding: 10px 20px;
   color: #4a5568;
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
   font-size: 1rem;
   font-weight: bold;
   text-decoration: none;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
   transition: all 0.2s ease;
-  cursor: pointer;
 }
-
 .back-link:hover {
   background-color: #f8fafc;
   color: #4f46e5;
   border-color: #94a3b8;
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
   text-decoration: none;
 }
-
-/* ===== 5. 面接画面 ===== */
-.interview-container {
-  --interviewer-size: min(720px, 90vw, max(160px, calc(100vh - 220px)));
-  width: 100vw;
-  max-width: 100%;
-  min-height: 100vh;
-  margin: 0;
-  padding: 30px 40px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.interview-header {
-  width: 100%;
-  margin-bottom: 10px;
-  padding: 0;
-}
-
-.header-info {
-  display: flex;
-  align-items: baseline;
-  gap: 16px;
-  justify-content: flex-start;
-  text-align: left;
-  margin: 0;
-  padding: 0;
-}
-
-.mode-title {
-  font-size: 2.2rem;
-  font-weight: bold;
-  color: #111827;
-}
-
-.difficulty-badge {
-  display: inline-block;
-  padding: 6px 14px;
-  background-color: #eef2ff;
-  color: #4338ca;
-  border-radius: 9999px;
-  font-size: 1rem;
-  font-weight: bold;
-}
-
-.interview-main {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  min-height: var(--interviewer-size);
-  margin: 10px 0;
-  gap: 24px;
-}
-
-.speech-bubble {
-  flex: 0 1 360px;
-  background: #ffffff;
-  border: 2px solid #e5e7eb;
-  border-radius: 16px;
-  position: relative;
-  min-height: 240px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-  z-index: 1;
-  padding: 18px;
-}
-
-.bubble-header {
-  display: inline-block;
-  margin-bottom: 10px;
-  padding: 4px 12px;
-  background: #4f46e5;
-  color: #ffffff;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: bold;
-}
-
-.bubble-content {
-  font-size: 1.05rem;
-  line-height: 1.8;
-  color: #1f2937;
-  min-height: 120px;
-}
-
-/* 面接官アバターの中央配置・レイアウトの修正 */
-.interviewer-avatar {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: var(--interviewer-size);
-  height: var(--interviewer-size);
-  background: #f3f4f6;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
-  overflow: hidden;
-}
-
-.interviewer-avatar .character-base,
-.interviewer-avatar .character-mouth {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.interviewer-avatar .character-base {
-  z-index: 1;
-}
-
-.interviewer-avatar .character-mouth {
-  z-index: 2;
-  pointer-events: none;
-}
-
-.interviewer-avatar.talking img,
-.interviewer-avatar.talking .character-base {
-  animation: talk-bounce 0.3s infinite alternate;
-}
-
-@keyframes talk-bounce {
-  0% { transform: scale(1); }
-  100% { transform: scale(1.03); }
-}
-
-.interview-footer {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  background: #ffffff;
-  padding: 24px;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-}
-
-.progress-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  width: 100%;
-}
-
-.progress-boxes {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-}
-
-.step-box {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: #f3f4f6;
-  color: #9ca3af;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 18px;
-  transition: all 0.2s ease;
-}
-
-.step-box.active {
-  background: #4f46e5;
-  color: #ffffff;
-  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
-}
-
-.progress-text {
-  font-size: 14px;
-  color: #6b7280;
-  font-weight: 500;
-  text-align: center;
-}
-
-.input-section {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 24px;
-  width: 100%;
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
-.progress-bar-container {
-  flex: 1;
-  max-width: 450px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.progress-bar-label {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  font-weight: 600;
-  color: #4b5563;
-}
-
-.progress-bar-track {
-  width: 100%;
-  height: 12px;
-  background-color: #e5e7eb;
-  border-radius: 9999px;
-  overflow: hidden;
-}
-
-.progress-bar-fill {
-  height: 100%;
-  width: 20%;
-  background-color: #4f46e5;
-  border-radius: 9999px;
-  transition: width 0.3s ease;
-}
-
-.input-controls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 1;
-  max-width: 600px;
-}
-
-#user-input {
-  flex: 1;
-  width: 100%;
-  height: 100px;
-  min-height: 80px;
-  max-height: 200px;
-  padding: 12px 14px;
-  border: 1px solid #d1d5db;
-  border-radius: 10px;
-  font-size: 15px;
-  resize: vertical;
-  outline: none;
-  font-family: inherit;
-  line-height: 1.5;
-}
-
-#user-input:focus {
-  border-color: #4f46e5;
-}
-
-.icon-btn {
-  background: #f3f4f6;
-  border: 1px solid #d1d5db;
-  font-size: 22px;
-  padding: 12px 16px;
-  border-radius: 10px;
-  cursor: pointer;
-  align-self: flex-start;
-}
-
-.icon-btn:hover {
-  background: #e5e7eb;
-}
-
-.send-btn {
-  background: #4f46e5;
-  color: white;
-  border: none;
-  padding: 14px 28px;
-  font-weight: bold;
-  font-size: 15px;
-  border-radius: 10px;
-  cursor: pointer;
-  white-space: nowrap;
-  align-self: flex-start;
-}
-
-.send-btn:hover {
-  background: #4338ca;
-}
-
-.thinking {
-  color: #6b7280;
-  font-style: italic;
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
-/* ===== 6. 評価結果モーダル専用 ===== */
-.eval-modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  padding: 20px;
-}
-
-.eval-window {
-  background: #ffffff;
-  border-radius: 20px;
-  padding: 28px;
-  width: 90%;
-  max-width: 820px;
-  max-height: 85vh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-  overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-}
-
-.eval-header {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 18px;
-  flex-shrink: 0;
-}
-
-.eval-header img {
-  width: 88px;
-  height: 88px;
-  border-radius: 50%;
-  background: #fef3c7;
-  object-fit: contain;
-}
-
-.eval-content {
-  display: flex;
-  gap: 18px;
-  flex-wrap: wrap;
-  overflow-y: auto;
-  flex: 1;
-  padding-right: 6px;
-  margin-bottom: 10px;
-}
-
-.eval-bubble {
-  flex: 1 1 300px;
-  border: 2px solid #e5e7eb;
-  border-radius: 14px;
-  padding: 16px;
-}
-
-.score-bubble { border-color: #6366f1; background: #eef2ff; }
-.advice-bubble { border-color: #10b981; background: #ecfdf5; }
-
-.bubble-title {
-  font-weight: bold;
-  margin-bottom: 8px;
-  color: #111827;
-  font-size: 16px;
-}
-
-.bubble-body {
-  font-size: 0.95rem;
-  line-height: 1.8;
-  color: #1f2937;
-  white-space: pre-wrap;
-}
-
-.eval-footer {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  margin-top: 15px;
-  flex-shrink: 0;
-}
-
-.eval-footer a,
-.eval-footer button {
-  padding: 12px 24px;
-  border-radius: 10px;
-  font-weight: bold;
-  text-decoration: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1rem;
-}
-
-.eval-footer .btn-primary { background: #4f46e5; color: #ffffff; }
-
-.eval-footer .btn-secondary,
-.interview-footer .btn-secondary { 
-  background: #ffffff; 
-  color: #4a5568; 
-  border: 1px solid #cbd5e1;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-  transition: all 0.2s ease;
-}
-
-.eval-footer .btn-secondary:hover,
-.interview-footer .btn-secondary:hover {
-  background: #f8fafc;
-  color: #4f46e5;
-  border-color: #94a3b8;
-  transform: translateY(-1px);
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-/* ===== フクロウのアドバイス吹き出し（練習モード用・右上） ===== */
-.owl-advice-container {
-  position: absolute;
-  top: 10px;
-  right: 80px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: 380px;
-  z-index: 3;
-}
-
-.owl-avatar-small {
-  width: 60px;
-  height: 60px;
-  background: #ffffff;
-  border-radius: 50%;
-  border: 3px solid #10b981;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  margin-bottom: -15px;
-  z-index: 4;
-}
-
-.owl-avatar-small img {
-  width: 45px;
-  height: 45px;
-  object-fit: contain;
-}
-
-.owl-speech-bubble {
-  background: #ffffff;
-  border: 2px solid #10b981;
-  border-radius: 16px;
-  padding: 24px 18px 14px 18px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-  position: relative;
-  width: 100%;
-}
-
-.owl-bubble-header {
-  font-size: 12px;
-  font-weight: bold;
-  color: #10b981;
-  margin-bottom: 4px;
-}
-
-.owl-bubble-content {
-  font-size: 0.95rem;
-  color: #1f2937;
-  line-height: 1.5;
-}
-
-/* ===== Coach Panel ===== */
-.coach-panel {
-  flex: 0 0 auto;
-  width: 260px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.coach-avatar {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: #fef3c7;
-  border: 3px solid #fcd34d;
-}
-
-.coach-bubble {
-  position: relative;
-  width: 100%;
-  background: #fffbeb;
-  border: 2px solid #fcd34d;
-  border-radius: 14px;
-  padding: 14px;
-}
-
-.coach-bubble-title {
-  font-size: 0.8rem;
-  font-weight: bold;
-  color: #92400e;
-  margin-bottom: 6px;
-}
-
-.coach-bubble-body {
-  font-size: 0.95rem;
-  line-height: 1.7;
-  color: #78350f;
-}
-
-/* ===== 7. 単語帳・並び替えモード ===== */
-.page-lead {
-  color: #4b5563;
-  font-size: 1rem;
-  margin-bottom: 28px;
-  text-align: center;
-}
-
-.vocab-list,
-.ordering-list {
-  width: 100%;
-  max-width: 720px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin-bottom: 32px;
-}
-
-.vocab-item {
-  background: #ffffff;
-  border: 2px solid #e5e7eb;
-  border-radius: 14px;
-  overflow: hidden;
-}
-
-.vocab-word {
-  padding: 16px 20px;
-  font-size: 1.15rem;
-  font-weight: bold;
-  color: #1f2937;
-  cursor: pointer;
-  list-style: none;
-}
-
-.vocab-body {
-  padding: 0 20px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  font-size: 0.98rem;
-  line-height: 1.7;
-  color: #374151;
-}
-
-.ordering-card {
-  background: #ffffff;
-  border: 2px solid #e5e7eb;
-  border-radius: 16px;
-  padding: 20px;
-}
-
-.ordering-title {
-  margin: 0 0 14px;
-  font-size: 1.1rem;
-  color: #111827;
-}
-
-.ordering-items {
-  list-style: none;
-  margin: 0 0 14px;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  counter-reset: order;
-}
-
-.ordering-item {
-  padding: 10px;
-  background: #f9fafb;
-  border: 2px solid #e5e7eb;
-  border-radius: 10px;
-  cursor: pointer;
-  text-align: center;
-  width: fit-content;
-}
-
-.ordering-item img {
-  max-width: 100%;
-  height: 90px;
-  object-fit: contain;
-  display: block;
-  margin: 0 auto;
-  pointer-events: none;
-}
-
-.ordering-item.selected {
-  border-color: #4f46e5;
-  background: #eef2ff;
-}
-
-.card-bank {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.source-card {
-  width: 120px;
-  height: 120px;
-  background: #ffffff;
-  border: 3px solid #e5e7eb;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  padding: 8px;
-  box-sizing: border-box;
-  transition: all 0.2s;
-}
-
-.source-card.selected {
-  border-color: #4f46e5;
-  background: #eef2ff;
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
-}
-
-.source-card .card-img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  pointer-events: none;
-  display: block;
-}
-
-.slots-container {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 24px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.order-slot {
-  width: 120px;
-  height: 140px;
-  background: #f8fafc;
-  border: 3px dashed #cbd5e1;
-  border-radius: 12px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-sizing: border-box;
-  transition: all 0.2s;
-}
-
-.order-slot:hover {
-  border-color: #94a3b8;
-}
-
-.slot-number {
-  position: absolute;
-  top: 6px;
-  left: 10px;
-  font-size: 0.9rem;
-  font-weight: bold;
-  color: #64748b;
-}
-
-.slot-content {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-  box-sizing: border-box;
-}
-
-.slot-content .source-card {
-  width: 100%;
-  height: 100%;
-  border: none;
-  background: transparent;
-  box-shadow: none;
-  transform: none;
-}
-
-.ordering-actions {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-}
-
-.ordering-reset {
-  padding: 10px 18px;
-  border-radius: 10px;
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
-  color: #475569;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.ordering-check {
-  padding: 10px 18px;
-  border-radius: 10px;
-  border: none;
-  background: #4f46e5;
-  color: #ffffff;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.ordering-result {
-  margin-top: 12px;
-  font-weight: bold;
-  font-size: 1rem;
-}
-.ordering-result.correct { color: #059669; }
-.ordering-result.incorrect { color: #dc2626; }
+</style>
+</head>
+<body>
+
+<!-- 言語切り替えセレクトボックス（画面右上） -->
+<div style="position: absolute; top: 20px; right: 20px; z-index: 100;">
+  <select id="language-select" onchange="window.setLanguage(this.value)" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ccc; background: #fff; cursor: pointer;">
+    <option value="ja">日本語</option>
+    <option value="en">English</option>
+    <option value="es">Español</option>
+    <option value="pt">Português</option>
+  </select>
+</div>
+
+<div class="card-box">
+  <h3 data-i18n="difficulty_select.title">難易度選択</h3>
+  <div class="sub-text"></div>
+  <div class="btn-group">
+    <a href="/interview?mode=<%= @mode %>&difficulty=easy" class="btn-diff">Easy</a>
+    <a href="/interview?mode=<%= @mode %>&difficulty=normal" class="btn-diff">Normal</a>
+    <a href="/interview?mode=<%= @mode %>&difficulty=hard" class="btn-diff">Hard</a>
+  </div>
+</div>
+
+<a href="/modes" class="back-link" data-i18n="difficulty_select.back_to_modes">← モード選択に戻る</a>
+
+<!-- 共通の多言語切り替えスクリプト -->
+<script src="/js/i18n.js"></script>
+</body>
+</html>
