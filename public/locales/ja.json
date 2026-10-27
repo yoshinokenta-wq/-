@@ -32,6 +32,28 @@
     "incorrect_msg": "もう一度考えてみましょう。順番が違うようです。"
   },
 
+   "interview": {
+    "page_title": "面接練習",
+    "header_title": "面接",
+    "interviewer": "面接官",
+    "ready_msg": "準備ができたら「音声対話スタート」を押してください。",
+    "coach_title": "フクロウ先生からアドバイス",
+    "start_btn": "音声対話スタート",
+    "back_to_modes": "← モード選択に戻る",
+    "eval_title": "面接評価結果",
+    "score_title": "採点結果",
+    "loading_eval": "評価を読み込んでいます...",
+    "advice_title": "アドバイス",
+    "loading_advice": "アドバイスを読み込んでいます...",
+    "retry": "もう一度"
+  },
+
+  "vocab": {
+    "page_title": "単語帳モード",
+    "title": "単語帳モード",
+    "lead": "面接で頻出する言葉を、クリックして意味と読みを確認できます。",
+    "back_to_modes": "← モード選択に戻る"
+  },
 
   "difficulty_select": {
     "page_title": "難易度選択",
