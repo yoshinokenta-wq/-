@@ -3,21 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>単語帳モード</title>
+<title data-i18n="vocab.page_title">単語帳モード</title>
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+
+<!-- 言語切り替えセレクトボックス（画面右上） -->
+<div style="position: absolute; top: 20px; right: 20px; z-index: 100;">
+  <select id="language-select" onchange="window.setLanguage(this.value)" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ccc; background: #fff; cursor: pointer;">
+    <option value="ja">日本語</option>
+    <option value="en">English</option>
+    <option value="es">Español</option>
+    <option value="pt">Português</option>
+  </select>
+</div>
+
 <div class="full-screen-container">
-  <h2 class="difficulty-title">単語帳モード</h2>
-  <p class="page-lead">面接で頻出する言葉を、クリックして意味と読みを確認できます。</p>
+  <h2 class="difficulty-title" data-i18n="vocab.title">単語帳モード</h2>
+  <p class="page-lead" data-i18n="vocab.lead">面接で頻出する言葉を、クリックして意味と読みを確認できます。</p>
 
   <div class="vocab-list">
     <% @vocabulary.each do |item| %>
     <details class="vocab-item">
       <summary class="vocab-word"><%= item[:word] %></summary>
       <div class="vocab-body">
-        <div class="vocab-reading">読み: <%= item[:reading] %></div>
-        <div class="vocab-meaning">意味: <%= item[:meaning] %></div>
+        <div class="vocab-reading" data-i18n-prefix="vocab.reading">読み: <%= item[:reading] %></div>
+        <div class="vocab-meaning" data-i18n-prefix="vocab.meaning">意味: <%= item[:meaning] %></div>
         <% if item[:example] %>
         <div class="vocab-example">例: <%= item[:example] %></div>
         <% end %>
@@ -26,7 +37,10 @@
     <% end %>
   </div>
 
-  <a href="/modes" class="back-link">← モード選択に戻る</a>
+  <a href="/modes" class="back-link" data-i18n="vocab.back_to_modes">← モード選択に戻る</a>
 </div>
+
+<!-- 共通の多言語切り替えスクリプト -->
+<script src="/js/i18n.js"></script>
 </body>
 </html>
