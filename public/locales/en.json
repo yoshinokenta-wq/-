@@ -32,6 +32,29 @@
     "incorrect_msg": "Let's try again. The order seems incorrect."
   },
 
+  "interview": {
+    "page_title": "Interview Practice",
+    "header_title": "Interview",
+    "interviewer": "Interviewer",
+    "ready_msg": "When ready, click \"Start Voice Chat\".",
+    "coach_title": "Advice from Professor Owl",
+    "start_btn": "Start Voice Chat",
+    "back_to_modes": "← Back to Mode Select",
+    "eval_title": "Interview Evaluation Results",
+    "score_title": "Score Results",
+    "loading_eval": "Loading evaluation...",
+    "advice_title": "Advice",
+    "loading_advice": "Loading advice...",
+    "retry": "Try Again"
+  },
+
+  "vocab": {
+    "page_title": "Vocabulary Mode",
+    "title": "Vocabulary Mode",
+    "lead": "Click on words frequently used in interviews to check their meanings and readings.",
+    "back_to_modes": "← Back to Mode Select"
+  },
+
   "difficulty_select": {
     "page_title": "Select Difficulty",
     "title": "Select Difficulty",
