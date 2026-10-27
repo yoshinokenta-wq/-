@@ -13,6 +13,8 @@
 <select id="language-select" onchange="window.setLanguage(this.value)" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ccc; background: #fff; cursor: pointer;">
   <option value="ja">日本語</option>
   <option value="en">English</option>
+  <option value="es">Español</option>
+  <option value="pt">Português</option>
 </select>
 </div>
 
@@ -117,7 +119,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return card ? card.dataset.id : '';
       });
 
-      // 💡 window.getI18nText を使って、選択中の言語のメッセージを取得する
       if (currentAnswer.includes('')) {
         resultDiv.textContent = window.getI18nText('ordering.alert_fill_all');
         resultDiv.className = 'ordering-result incorrect';
