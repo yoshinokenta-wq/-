@@ -31,9 +31,36 @@
     "correct_msg": "¡Correcto! Excelente comprensión de los modales.",
     "incorrect_msg": "Intentemos de nuevo. El orden parece incorrecto."
   },
+
+
+  "interview": {
+    "page_title": "Práctica de Entrevista",
+    "header_title": "Entrevista",
+    "interviewer": "Entrevistador",
+    "ready_msg": "Cuando estés listo, haz clic en \"Iniciar Chat de Voz\".",
+    "coach_title": "Consejo del Profesor Búho",
+    "start_btn": "Iniciar Chat de Voz",
+    "back_to_modes": "← Volver a Selección de Modo",
+    "eval_title": "Resultados de Evaluación de Entrevista",
+    "score_title": "Resultados de Calificación",
+    "loading_eval": "Cargando evaluación...",
+    "advice_title": "Consejos",
+    "loading_advice": "Cargando consejos...",
+    "retry": "Intentar de Nuevo"
+  },
+
+  "vocab": {
+    "page_title": "Modo de Vocabulario",
+    "title": "Modo de Vocabulario",
+    "lead": "Haz clic en las palabras frecuentes en entrevistas para ver sus significados y lecturas.",
+    "back_to_modes": "← Volver a Selección de Modo"
+  },
+
   "difficulty_select": {
     "page_title": "Seleccionar Dificultad",
     "title": "Seleccionar Dificultad",
     "back_to_modes": "← Volver a Selección de Modo"
   }
+
+  
 }
