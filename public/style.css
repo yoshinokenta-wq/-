@@ -212,8 +212,33 @@ body {
 .tip-right .tooltip { left: 105%; }
 .diff-btn:hover .tooltip { visibility: visible; opacity: 1; }
 
-.back-link { margin-top: 40px; color: #1a1a1a; font-weight: bold; text-decoration: none; font-size: 1.1rem; }
-.back-link:hover { color: #4f46e5; text-decoration: underline; }
+/* 💡 【ブラッシュアップ】すべての画面の「モード選択に戻る」ボタン（.back-link）のデザインを面接モード等と完全に統一 */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 30px;
+  padding: 12px 24px;
+  background-color: #ffffff;
+  color: #4a5568;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: bold;
+  text-decoration: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.back-link:hover {
+  background-color: #f8fafc;
+  color: #4f46e5;
+  border-color: #94a3b8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+  text-decoration: none;
+}
 
 /* ===== 5. 面接画面 ===== */
 .interview-container {
@@ -607,7 +632,23 @@ body {
 }
 
 .eval-footer .btn-primary { background: #4f46e5; color: #ffffff; }
-.eval-footer .btn-secondary { background: #e5e7eb; color: #333333; }
+
+.eval-footer .btn-secondary,
+.interview-footer .btn-secondary { 
+  background: #ffffff; 
+  color: #4a5568; 
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+
+.eval-footer .btn-secondary:hover,
+.interview-footer .btn-secondary:hover {
+  background: #f8fafc;
+  color: #4f46e5;
+  border-color: #94a3b8;
+  transform: translateY(-1px);
+}
 
 @keyframes fadeIn {
   from { opacity: 0; transform: scale(0.95); }
