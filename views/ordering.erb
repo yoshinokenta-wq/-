@@ -5,6 +5,50 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title data-i18n="ordering.page_title">行動並び替えモード</title>
 <link rel="stylesheet" href="/style.css">
+<style>
+/* 左右分割レイアウトおよび操作説明パネル用のスタイル */
+.ordering-main-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 1100px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.ordering-guide-panel {
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 320px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-sizing: border-box;
+}
+.guide-title {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #111827;
+  margin-bottom: 12px;
+  border-bottom: 2px solid #4f46e5;
+  padding-bottom: 6px;
+}
+.guide-list {
+  margin: 0 0 16px 0;
+  padding-left: 20px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #374151;
+}
+.guide-notes {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #4b5563;
+}
+</style>
 </head>
 <body>
 
@@ -22,40 +66,57 @@
   <h2 class="difficulty-title" data-i18n="ordering.title">行動並び替えモード</h2>
   <p class="page-lead" data-i18n="ordering.lead">上のカードを選んで、下の1〜4の枠に順番通りに置いてください。</p>
 
-  <div class="ordering-list">
-    <% @ordering_sets.each_with_index do |set, set_index| %>
-    <div class="ordering-card" data-answer="<%= set[:answer].join(',') %>">
-      <!-- セットのタイトル（例: 正しい入室・着席の流れ） -->
-      <h3 class="ordering-title" data-i18n="ordering.set_title_1"><%= set[:title] %></h3>
-      
-      <!-- ① 上部：選べるカード置き場 -->
-      <div class="card-bank" id="bank-<%= set_index %>">
-        <% set[:items].shuffle.each do |item| %>
-        <div class="source-card" data-id="<%= item[:id] %>">
-          <img src="<%= item[:image] %>" alt="" class="card-img">
+  <div class="ordering-main-layout">
+    <!-- 左側：並び替えカードリスト -->
+    <div class="ordering-list">
+      <% @ordering_sets.each_with_index do |set, set_index| %>
+      <div class="ordering-card" data-answer="<%= set[:answer].join(',') %>">
+        <!-- セットのタイトル（例: 正しい入室・着席の流れ） -->
+        <h3 class="ordering-title" data-i18n="ordering.set_title_1"><%= set[:title] %></h3>
+        
+        <!-- ① 上部：選べるカード置き場 -->
+        <div class="card-bank" id="bank-<%= set_index %>">
+          <% set[:items].shuffle.each do |item| %>
+          <div class="source-card" data-id="<%= item[:id] %>">
+            <img src="<%= item[:image] %>" alt="" class="card-img">
+          </div>
+          <% end %>
         </div>
-        <% end %>
-      </div>
 
-      <!-- ② 下部：1〜4の配置スロット -->
-      <div class="slots-container" id="slots-<%= set_index %>">
-        <% (1..set[:items].length).each do |i| %>
-        <div class="order-slot" data-slot-index="<%= i - 1 %>">
-          <span class="slot-number"><%= i %></span>
-          <div class="slot-content"></div>
+        <!-- ② 下部：1〜4の配置スロット -->
+        <div class="slots-container" id="slots-<%= set_index %>">
+          <% (1..set[:items].length).each do |i| %>
+          <div class="order-slot" data-slot-index="<%= i - 1 %>">
+            <span class="slot-number"><%= i %></span>
+            <div class="slot-content"></div>
+          </div>
+          <% end %>
         </div>
-        <% end %>
-      </div>
 
-      <div class="ordering-actions">
-        <!-- やり直すボタン -->
-        <button type="button" class="ordering-reset" data-target="<%= set_index %>" data-i18n="ordering.reset">やり直す</button>
-        <!-- 確認ボタン -->
-        <button type="button" class="ordering-check" data-target="<%= set_index %>" data-i18n="ordering.check">確認</button>
+        <div class="ordering-actions">
+          <!-- やり直すボタン -->
+          <button type="button" class="ordering-reset" data-target="<%= set_index %>" data-i18n="ordering.reset">やり直す</button>
+          <!-- 確認ボタン -->
+          <button type="button" class="ordering-check" data-target="<%= set_index %>" data-i18n="ordering.check">確認</button>
+        </div>
+        <div class="ordering-result" id="result-<%= set_index %>"></div>
       </div>
-      <div class="ordering-result" id="result-<%= set_index %>"></div>
+      <% end %>
     </div>
-    <% end %>
+
+    <!-- 右側：操作説明パネル（data-i18n を追加しました） -->
+    <div class="ordering-guide-panel">
+      <div class="guide-title" data-i18n="ordering.guide_title">操作説明</div>
+      <ol class="guide-list">
+        <li data-i18n="ordering.step_1">1.図をクリック</li>
+        <li data-i18n="ordering.step_2">2.次に入れたい枠をクリック</li>
+        <li data-i18n="ordering.step_3">3.全て並び替えられたら確認ボタンをクリック</li>
+      </ol>
+      <ul class="guide-notes">
+        <li data-i18n="ordering.note_1">・枠に入れた図も、再度クリックすれば選択肢に戻る</li>
+        <li data-i18n="ordering.note_2">・やり直しボタンを押せば、全部選択肢に戻る</li>
+      </ul>
+    </div>
   </div>
 
   <a href="/modes" class="back-link" data-i18n="ordering.back_to_modes">← モード選択に戻る</a>
