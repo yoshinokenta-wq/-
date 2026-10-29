@@ -4,61 +4,63 @@
     "subtitle": "Prática de entrevista de admissão ao ensino médio para estudantes estrangeiros"
   },
   "menu": {
-    "mode_select": "Selecionar Modo"
+    "mode_select": "Seleção de Modo"
   },
   "mode_select": {
-    "page_title": "Selecionar Modo",
-    "title": "Selecionar Modo",
-    "practice": "Modo de Prática",
-    "practice_desc": "Modo de prática de perguntas e respostas. Você pode receber conselhos do Professor Coruja após cada resposta.",
+    "page_title": "Seleção de Modo",
+    "title": "Seleção de Modo",
+    "practice": "Modo Prática",
+    "practice_desc": "Modo de prática com perguntas e respostas. Você receberá conselhos do professor Coruja após cada resposta.",
     "real": "Modo Real",
-    "real_desc": "Responda 5 perguntas sem parar, assim como em um exame real. Não há conselhos intermediários.",
+    "real_desc": "Responda a 5 perguntas sem parar, assim como no exame real. Não há conselhos no meio do caminho.",
     "vocab": "Modo de Vocabulário",
-    "vocab_desc": "Você pode verificar os significados e leituras de palavras e frases importantes frequentes em entrevistas.",
+    "vocab_desc": "Verifique os significados e leituras de palavras e frases importantes frequentemente usadas em entrevistas.",
     "ordering": "Modo de Ordenação de Ações",
-    "ordering_desc": "Aprenda as regras de etiqueta de entrevista no Japão colocando-as na ordem correta.",
+    "ordering_desc": "Aprenda as regras de etiqueta de entrevistas japonesas colocando-as na ordem correta.",
     "back_to_top": "← Voltar ao Início"
   },
   "ordering": {
     "page_title": "Modo de Ordenação de Ações",
     "title": "Modo de Ordenação de Ações",
-    "lead": "Selecione um cartão acima e coloque-o na ordem correta nos espaços de 1 a 4 abaixo.",
-    "set_title_1": "Procedimento Correto de Entrada e Acomodação",
+    "lead": "Escolha os cartões acima e coloque-os nos espaços de 1 a 4 abaixo na ordem correta.",
+    "set_title_1": "Fluxo correto de entrada e assentos",
     "reset": "Reiniciar",
     "check": "Verificar",
     "back_to_modes": "← Voltar à Seleção de Modo",
     "alert_fill_all": "Por favor, coloque cartões em todos os espaços.",
     "correct_msg": "Correto! Excelente compreensão das regras de etiqueta.",
-    "incorrect_msg": "Vamos tentar novamente. A ordem parece incorreta."
+    "incorrect_msg": "Vamos pensar de novo. A ordem parece incorreta.",
+    "guide_title": "Como Jogar",
+    "step_1": "1. Clique em uma imagem",
+    "step_2": "2. Clique no espaço onde deseja colocá-la",
+    "step_3": "3. Clique no botão de verificação assim que tudo estiver preenchido",
+    "note_1": "• Você pode retornar uma imagem às opções clicando nela novamente no espaço",
+    "note_2": "• Clique no botão reiniciar para retornar todas as opções"
   },
-
-
   "interview": {
     "page_title": "Prática de Entrevista",
     "header_title": "Entrevista",
     "interviewer": "Entrevistador",
-    "ready_msg": "Quando estiver pronto, clique em \"Iniciar Chat de Voz\".",
-    "coach_title": "Conselho do Professor Coruja",
-    "start_btn": "Iniciar Chat de Voz",
+    "ready_msg": "Quando estiver pronto, clique em \"Iniciar Diálogo por Voz\".",
+    "coach_title": "Conselhos do Professor Coruja",
+    "start_btn": "Iniciar Diálogo por Voz",
     "back_to_modes": "← Voltar à Seleção de Modo",
     "eval_title": "Resultados da Avaliação da Entrevista",
-    "score_title": "Resultados da Pontuação",
+    "score_title": "Pontuação",
     "loading_eval": "Carregando avaliação...",
-    "advice_title": "Conselho",
-    "loading_advice": "Carregando conselho...",
+    "advice_title": "Conselhos",
+    "loading_advice": "Carregando conselhos...",
     "retry": "Tentar Novamente"
   },
-
   "vocab": {
     "page_title": "Modo de Vocabulário",
     "title": "Modo de Vocabulário",
     "lead": "Clique nas palavras frequentes em entrevistas para verificar seus significados e leituras.",
     "back_to_modes": "← Voltar à Seleção de Modo"
-  }, 
-
+  },
   "difficulty_select": {
-    "page_title": "Selecionar Dificuldade",
-    "title": "Selecionar Dificuldade",
+    "page_title": "Seleção de Dificuldade",
+    "title": "Seleção de Dificuldade",
     "back_to_modes": "← Voltar à Seleção de Modo"
   }
 }
